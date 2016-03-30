@@ -103,7 +103,7 @@ public class yacalendar extends Activity
 
     final static private String TAG = yacalendar.class.getSimpleName();
 
-    final static private String SAVEFILENAME = "barrett.data";
+    final static private String SAVEFILENAME = "test.data";
     // Menu Ids
     // Month View menu
     private static final int MENU_DAY_VIEW = Menu.FIRST + 1;
@@ -227,6 +227,13 @@ public class yacalendar extends Activity
 
         sdf = new SimpleDateFormat(Constants.SHORT_DATE_FORMAT);
 
+        // window features - must be set prior to calling setContentView...
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setContentView(R.layout.main);
+
+        mainView = findViewById( R.id.main_screen );
+        mainView.setVisibility( View.INVISIBLE );
+
         //InitializeData() here, InitializeGUI() is called after the calendar info is retrieved
         InitializeData();
 
@@ -285,15 +292,7 @@ public class yacalendar extends Activity
 
         //Eula.show(this);
 
-        // window features - must be set prior to calling setContentView...
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-        setContentView(R.layout.main);
-
-        mainView = findViewById( R.id.main_screen );
-        mainView.setVisibility( View.INVISIBLE );
-
-        showBusyDialog();
+        ///////////////////showBusyDialog();
 
         String result = null;
         String urlString = null;
@@ -518,7 +517,7 @@ public class yacalendar extends Activity
      */
     public static Date parseDate( String dateString )
     {
-        SimpleDateFormat sdf = new SimpleDateFormat( "MMddyyyy" );
+        SimpleDateFormat sdf = new SimpleDateFormat( Constants.INTERNAL_SHORT_DATE_FORMAT );
         Date date = null;
         try
         {
@@ -534,9 +533,9 @@ public class yacalendar extends Activity
 
     public static String formatDate(Calendar date)
     {
-        SimpleDateFormat sdf = new SimpleDateFormat( "MMddyyyy" );
+        SimpleDateFormat sdf = new SimpleDateFormat( Constants.INTERNAL_SHORT_DATE_FORMAT );
         String dateString = null;
-        dateString = sdf.format(date);
+        dateString = sdf.format(date.getTime());
 
         return dateString;
     }
@@ -1832,70 +1831,71 @@ public class yacalendar extends Activity
         //monthName.setText(getString(mMonthNameStringId[mCurrentMonthIndex]) + " " + mCurrentYear);
         monthName.setText(new SimpleDateFormat("MMM - yyyy").format(mCalendar.getTime()));
         //Set the calendar background picture, if it available from the server
-        Bitmap bitmap = calendarInfo.getMonthImage(mCalendar.get(Calendar.MONTH));
+        ////Bitmap bitmap = calendarInfo.getMonthImage(mCalendar.get(Calendar.MONTH));
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.month1);
         if(bitmap != null)
         {
             BitmapDrawable d = new BitmapDrawable(getResources(), bitmap);
             mMainScreen.setBackground(d);
         }
-        for (int iWeek = 0; iWeek < 6; iWeek++)
-        {
-            for (int iDay = 0; iDay < kNumDaysOfWeek; iDay++)
-            {
-                DateButton btn = (DateButton) (v.findViewById(mWeekId[iWeek]).findViewById(mDayId[iDay])
-                        .findViewById(R.id.BtnDay));
-
-                //TODO - maybe long press should bring up the day view
-                btn.setOnLongClickListener(new OnLongClickListener()
-                {
-
-                    public boolean onLongClick(View v)
-                    {
-                        BtnDayClickHandler(v);
-                        ShowDayView();
-                        return true;
-                    }
-                });
-                int dayOnCalendar = (iWeek * kNumDaysOfWeek + iDay);
-                //Do not use Calendar.getMaximum(), it returns the max for the entire year not the current month
-                if (dayOnCalendar < firstDayOfWeek || dateOnCalendar > mCalendar.getActualMaximum(Calendar.DATE))
-                {
-                    btn.setVisibility(View.GONE);
-                } else
-                {
-                    btn.setVisibility(View.VISIBLE);
-
-                    //Set focus to first date of the month
-                    if (dateOnCalendar == mCalendar.get(Calendar.DAY_OF_MONTH))
-                    {
-                        mCurrentDateBtn = btn;
-                        btn.setBtnAsSelected(true);
-                    } else
-                    {
-                        btn.setBtnAsSelected(false);
-                    }
-
-                    String dateText = Integer.toString(dateOnCalendar);
-                    btn.setText(dateText);
-
-/*
-                    cal.set(mCurrentYear, mCurrentMonthIndex, dateOnCalendar);
-                    String key = generateKeyFromCalendar(cal);
-                    if (calendarInfo.getNotes().containsKey(key))
-                    {
-                        note = calendarInfo.getNotes().get(key);
-                        btn.setTag(note);
-                    } else
-                    {
-                        note = null;
-*/
-                    //Fill in the notes when we get them from the server
-                    btn.setTag(null);
+//        for (int iWeek = 0; iWeek < 6; iWeek++)
+//        {
+//            for (int iDay = 0; iDay < kNumDaysOfWeek; iDay++)
+//            {
+//                DateButton btn = (DateButton) (v.findViewById(mWeekId[iWeek]).findViewById(mDayId[iDay])
+//                        .findViewById(R.id.BtnDay));
+//
+//                //TODO - maybe long press should bring up the day view
+//                btn.setOnLongClickListener(new OnLongClickListener()
+//                {
+//
+//                    public boolean onLongClick(View v)
+//                    {
+//                        BtnDayClickHandler(v);
+//                        ShowDayView();
+//                        return true;
 //                    }
-                    dateOnCalendar++;
-                }
-            }
-        }
+//                });
+//                int dayOnCalendar = (iWeek * kNumDaysOfWeek + iDay);
+//                //Do not use Calendar.getMaximum(), it returns the max for the entire year not the current month
+//                if (dayOnCalendar < firstDayOfWeek || dateOnCalendar > mCalendar.getActualMaximum(Calendar.DATE))
+//                {
+//                    btn.setVisibility(View.GONE);
+//                } else
+//                {
+//                    btn.setVisibility(View.VISIBLE);
+//
+//                    //Set focus to first date of the month
+//                    if (dateOnCalendar == mCalendar.get(Calendar.DAY_OF_MONTH))
+//                    {
+//                        mCurrentDateBtn = btn;
+//                        btn.setBtnAsSelected(true);
+//                    } else
+//                    {
+//                        btn.setBtnAsSelected(false);
+//                    }
+//
+//                    String dateText = Integer.toString(dateOnCalendar);
+//                    btn.setText(dateText);
+//
+///*
+//                    cal.set(mCurrentYear, mCurrentMonthIndex, dateOnCalendar);
+//                    String key = generateKeyFromCalendar(cal);
+//                    if (calendarInfo.getNotes().containsKey(key))
+//                    {
+//                        note = calendarInfo.getNotes().get(key);
+//                        btn.setTag(note);
+//                    } else
+//                    {
+//                        note = null;
+//*/
+//                    //Fill in the notes when we get them from the server
+//                    btn.setTag(null);
+////                    }
+//                    dateOnCalendar++;
+//                }
+//            }
+//        }
 
         //last but not least update the footer
         if(mCurrentDateBtn != null)

@@ -12,6 +12,7 @@ public class Constants
     public final static String[] TABLE_NAMES = {LOCAL_TABLE, REMOTE_TABLE};
 
     public final static String SHORT_DATE_FORMAT = "MM/dd/yyyy";
+    public final static String INTERNAL_SHORT_DATE_FORMAT = "MMddyyyy";
 
     //Note
     public static final int NOTE_PRIORITY_NONE = -1;

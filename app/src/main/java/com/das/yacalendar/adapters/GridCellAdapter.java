@@ -251,7 +251,7 @@ public class GridCellAdapter extends BaseAdapter implements View.OnClickListener
 
 // Set the Day GridCell
         gridcell.setText(theday);
-        gridcell.setTag(theday + "-" + themonth + "-" + theyear);
+        //gridcell.setTag(theday + "-" + themonth + "-" + theyear);
         Log.d(TAG, "Setting GridCell " + theday + "-" + themonth + "-"
                 + theyear);
 

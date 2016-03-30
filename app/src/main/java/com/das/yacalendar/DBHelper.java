@@ -74,6 +74,13 @@ public class DBHelper extends SQLiteOpenHelper
                             CalendarContract.CalendarImagesEntry.COLUMN_NAME_IMAGE_ID + " INTEGER, " +
                             CalendarContract.CalendarImagesEntry.COLUMN_NAME_IMAGE + " BLOB " +
                             ");");
+            database.execSQL(
+                    "CREATE TABLE IF NOT EXISTS "+ CalendarContract.NOTE_TABLE_NAME + "(" +
+                            CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_ID + " INTEGER, " +
+                            CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_PRIORITY + " INTEGER, " +
+                            CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_TEXT + " TEXT, " +
+                            CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_DATE + " TEXT " +
+                    ");");
 
         } catch (Exception e)
         {
@@ -125,7 +132,7 @@ public class DBHelper extends SQLiteOpenHelper
             values.put(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_TEXT, note.getText());
             values.put(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_DATE, yacalendar.formatDate(note.getDate()));
 
-            long note_id = db.insertOrThrow(CalendarContract.INFO_TABLE_NAME, null, values);
+            long note_id = db.insertOrThrow(CalendarContract.NOTE_TABLE_NAME, null, values);
 
             return note_id;
         }
