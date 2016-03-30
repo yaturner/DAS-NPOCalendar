@@ -19,23 +19,29 @@
 
 package com.das.yacalendar;
 
+import android.util.Log;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.logging.SimpleFormatter;
 
 /**
  * @author yaturner
  */
-public class Note
+public class Note implements Serializable
 {
-    private static final String TAG_NOTE = "NOTE";
-    private SimpleFormatter sdf = new SimpleFormatter();
+    private static final String TAG = Note.class.getSimpleName();
+
     private long id;
     private Calendar date;
     private int priority;
     private String text;
+
+    private String dateString;
 
 
     public Note()
@@ -62,24 +68,18 @@ public class Note
         this.text = text;
     }
 
-    public String getDateAsString()
-    {
-        return yacalendar.getInstance().getSdf().format(date);
-    }
-
-
     public void Save(final DataOutputStream obj_out) throws IOException
     {
-//        obj_out.writeInt(priority);
-//        Log.d(TAG_NOTE, "Save\\\\priority = " + priority);
-//        int len = text.length();
-//        obj_out.writeInt(len);
-//        obj_out.writeBytes(text);
-//        Log.d(TAG_NOTE, "Save\\\\len = " + len + " text = " + text);
-//        len = date.length();
-//        obj_out.writeInt(len);
-//        obj_out.writeBytes(date);
-//        Log.d(TAG_NOTE, "Save\\\\len = " + len + " date = " + date);
+        obj_out.writeInt(priority);
+        Log.d(TAG, "Save\\\\priority = " + priority);
+        int len = text.length();
+        obj_out.writeInt(len);
+        obj_out.writeBytes(text);
+        String dateString = yacalendar.formatDate(date);
+        len = dateString.length();
+        obj_out.writeInt(len);
+        obj_out.writeBytes(dateString);
+        Log.d(TAG, "Save\\\\len = " + len + " date = " + dateString);
     }
 
     public void Restore(final DataInputStream obj_in) throws IOException
@@ -88,18 +88,19 @@ public class Note
         int red = -1;
         byte[] b = null;
 
-//        priority = obj_in.readInt();
-//        Log.d(TAG_NOTE, "Restore\\\\priority = " + priority);
-//        len = obj_in.readInt();
-//        b = new byte[len];
-//        red = obj_in.read(b, 0, len);
-//        text = new String(b);
-//        Log.d(TAG_NOTE, "Restore\\\\ read = " + red + " len = " + len + " text = " + text);
-//        len = obj_in.readInt();
-//        b = new byte[len];
-//        red = obj_in.read(b, 0, len);
-//        date = new String(b);
-//        Log.d(TAG_NOTE, "Restore\\\\ read = " + red + " len = " + len + " date = " + date);
+        priority = obj_in.readInt();
+        Log.d(TAG, "Restore\\\\priority = " + priority);
+        len = obj_in.readInt();
+        b = new byte[len];
+        red = obj_in.read(b, 0, len);
+        text = new String(b);
+        Log.d(TAG, "Restore\\\\ read = " + red + " len = " + len + " text = " + text);
+        len = obj_in.readInt();
+        b = new byte[len];
+        red = obj_in.read(b, 0, len);
+        date = Calendar.getInstance();
+        date.setTime(yacalendar.parseDate(new String(b)));
+        Log.d(TAG, "Restore\\\\ read = " + red + " len = " + len + " date = " + date);
     }
 
     public long getId()

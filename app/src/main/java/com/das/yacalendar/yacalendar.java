@@ -38,6 +38,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.nfc.FormatException;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -83,11 +84,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLDataException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 
 public class yacalendar extends Activity
@@ -95,8 +99,6 @@ public class yacalendar extends Activity
     private static yacalendar singleton;
 
     final static public boolean SUPPORT_NOTE_PRIORITY = false;
-//    final static public int kNumMonths = Calendar.getInstance().getMaximum(Calendar.MONTH) + 1; //zero based
-//    final static public int kMaxNumDaysPerMonth = Calendar.getInstance().getMaximum(Calendar.DAY_OF_MONTH);
     final static public int kNumDaysOfWeek = Calendar.getInstance().getMaximum(Calendar.DAY_OF_WEEK);
 
     final static private String TAG = yacalendar.class.getSimpleName();
@@ -132,7 +134,11 @@ public class yacalendar extends Activity
     // The currently selected month and year
     public int mCurrentMonthIndex;
     public int mCurrentYear;
-//    public Calendar mCurrentDisplayedDate;
+    public int mCurrentDay;
+    public Calendar mStartDate;
+    public Calendar mEndDate;
+
+    //    public Calendar mCurrentDisplayedDate;
     public View mCurrentMonthView = null;
     //Currently display calendar (month)
     public Calendar mCalendar = null;
@@ -346,33 +352,193 @@ public class yacalendar extends Activity
         mCurrentMonthIndex = mCalendar.get(Calendar.MONTH);
         mCurrentYear = mCalendar.get(Calendar.YEAR);
 
+        dbHelper = new DBHelper(this);
+        File root;
+        File fin;
+        FileInputStream in;
+        FileOutputStream out;
+        int numNotes = 0;
 
-
-
-//        mWeekId = new int[6];
-//        TypedArray ids = getResources().obtainTypedArray(R.array.WeekId);
-//        for (int iPos = 0; iPos < ids.length(); iPos++)
-//        {
-//            mWeekId[iPos] = ids.getResourceId(iPos, 0);
-//        }
-//
-//        mDayId = new int[kNumDaysOfWeek];
-//        ids = getResources().obtainTypedArray(R.array.DayId);
-//        for (int iPos = 0; iPos < kNumDaysOfWeek; iPos++)
-//        {
-//            mDayId[iPos] = ids.getResourceId(iPos, 0);
-//        }
-
-
-
-/*
-        monthBackgroundId = new int[kNumMonths];
-        ids = getResources().obtainTypedArray(R.array.MonthBackgroundIds);
-        for (int iPos = 0; iPos < kNumMonths; iPos++)
+        try
         {
-            monthBackgroundId[iPos] = ids.getResourceId(iPos, 0);
+            root = Environment.getExternalStorageDirectory();
+            if( root.canRead() )
+            {
+                fin = new File( root, SAVEFILENAME );
+            }
+            else
+            {
+                // ShowErrorDialog(
+                // "Could not access Saved/Restore data, The saved simulation will not be restored."
+                // );
+                throw new IOException();
+            }
         }
-*/
+        catch ( IOException e )
+        {
+            SetDefaultValuesAndInitializeGUI();
+            return;
+        }
+
+        if( !fin.exists() )
+        {
+            InputStream ins = getResources().openRawResource( R.raw.fundraiser );
+
+            int size;
+            try
+            {
+                size = ins.available();
+                if( size <= 0 )
+                {
+                    throw new IOException();
+                }
+
+                // Read the entire resource into a local byte buffer.
+                byte[] buffer = new byte[size];
+                ins.read( buffer );
+                ins.close();
+                if( root.canWrite() )
+                {
+                    File fout = new File( root, SAVEFILENAME );
+                    out = new FileOutputStream( fout );
+                    out.write( buffer );
+                    out.flush();
+                    out.close();
+                }
+            }
+            catch ( IOException e2 )
+            {
+                SetDefaultValuesAndInitializeGUI();
+                return;
+            }
+        }
+
+        // Read using DataInputStream.
+        try
+        {
+            in = new FileInputStream( fin );
+        }
+        catch ( FileNotFoundException e2 )
+        {
+            SetDefaultValuesAndInitializeGUI();
+            return;
+        }
+
+        DataInputStream obj_in = null;
+        obj_in = new DataInputStream( in );
+
+        try
+        {
+            byte[] dateBuffer = new byte[8]; // mmddyyyy
+            byte[] b = null;
+            int red = -1;
+            int len = -1;
+
+            if( mStartDate == null )
+            {
+                mStartDate = Calendar.getInstance();
+                mEndDate = Calendar.getInstance();
+            }
+
+            /**
+             * Start reading the database
+             */
+
+            //version string for the calendar, already checked in isDatabaseHealthy
+            //			len = obj_in.readInt();
+            //			b = new byte[len];
+            //			red = obj_in.read( b, 0, len );
+
+            //Start Date for the calendar
+            len = obj_in.readInt();
+            b = new byte[len];
+            red = obj_in.read( b, 0, len );
+            mStartDate.setTime(parseDate( new String(b)));
+
+            //End date for the calendar
+            len = obj_in.readInt();
+            b = new byte[len];
+            red = obj_in.read( b, 0, len );
+            mEndDate.setTime(parseDate(new String(b)));
+
+            //Current state info
+            mCurrentDay = obj_in.readInt();
+            Log.d( TAG, "Restore\\\\mCurrentDay = " + mCurrentDay );
+            mCurrentMonthIndex = obj_in.readInt();
+            Log.d( TAG, "Restore\\\\mCurrentMonthIndex = " + mCurrentMonthIndex );
+            mCurrentYear = obj_in.readInt();
+            Log.d( TAG, "Restore\\\\mCurrentYear = " + mCurrentYear );
+            numNotes = obj_in.readInt();
+            Log.d( TAG, "Restore\\\\numNotes = " + numNotes );
+        }
+        catch ( IOException e1 )
+        {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+
+        //Set the calendar
+        mCalendar.set( mCurrentYear, mCurrentMonthIndex, mCurrentDay );
+
+        //Notes
+        for( int iNote = 0; iNote < numNotes; iNote++ )
+        {
+            Note note = new Note();
+            try
+            {
+                note.Restore( obj_in );
+            }
+            catch ( IOException e )
+            {
+                ReportIOException( e );
+                e.printStackTrace();
+            }
+            dbHelper.addNote( note );
+        }
+
+        try
+        {
+            in.close();
+        }
+        catch ( IOException e )
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        // release it
+        in = null;
+
+        InitializeGUI();
+    }
+
+    /**
+     * @param dateString
+     *            the date to set
+     */
+    public static Date parseDate( String dateString )
+    {
+        SimpleDateFormat sdf = new SimpleDateFormat( "MMddyyyy" );
+        Date date = null;
+        try
+        {
+            date = sdf.parse( dateString );
+        }
+        catch ( ParseException e )
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return date;
+    }
+
+    public static String formatDate(Calendar date)
+    {
+        SimpleDateFormat sdf = new SimpleDateFormat( "MMddyyyy" );
+        String dateString = null;
+        dateString = sdf.format(date);
+
+        return dateString;
     }
 
     /**
