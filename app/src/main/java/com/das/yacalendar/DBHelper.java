@@ -63,16 +63,16 @@ public class DBHelper extends SQLiteOpenHelper
 
             database.execSQL(
                     "CREATE TABLE IF NOT EXISTS " + CalendarContract.INFO_TABLE_NAME + "(" +
-                            CalendarContract.CalendarInfoEntry._ID + " integer primary key autoincrement," +
-                            CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_NPO_NAME + "TEXT," +
-                            CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_CALENDAR_VERSION + "INTEGER," +
-                            CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_START_DATE + "TEXT," +
-                            CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_END_DATE + "TEXT," +
+                            CalendarContract.CalendarInfoEntry._ID + " integer primary key autoincrement, " +
+                            CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_NPO_NAME + " TEXT, " +
+                            CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_CALENDAR_VERSION + " INTEGER, " +
+                            CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_START_DATE + " TEXT, " +
+                            CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_END_DATE + " TEXT " +
                             ");");
             database.execSQL(
                     "CREATE TABLE IF NOT EXISTS "+ CalendarContract.IMAGES_TABLE_NAME + "(" +
-                            CalendarContract.CalendarImagesEntry.COLUMN_NAME_IMAGE_ID + "INTEGER," +
-                            CalendarContract.CalendarImagesEntry.COLUMN_NAME_IMAGE + "BLOB," +
+                            CalendarContract.CalendarImagesEntry.COLUMN_NAME_IMAGE_ID + " INTEGER, " +
+                            CalendarContract.CalendarImagesEntry.COLUMN_NAME_IMAGE + " BLOB " +
                             ");");
 
         } catch (Exception e)
@@ -275,7 +275,7 @@ public class DBHelper extends SQLiteOpenHelper
         return sdf.format(date);
     }
 
-    private String buildSQLStatementString(String start, String tableName, String[] fields)
+    public String buildSQLStatementString(String start, String tableName, String[] fields)
     {
         StringBuilder sql = new StringBuilder(start + " INTO " + tableName + " (");
 

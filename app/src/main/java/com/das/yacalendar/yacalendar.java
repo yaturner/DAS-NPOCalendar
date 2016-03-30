@@ -66,6 +66,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -74,12 +75,16 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
+import com.das.yacalendar.adapters.GridCellAdapter;
+
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.SQLDataException;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -125,14 +130,16 @@ public class yacalendar extends Activity
     public Animation mSlideDownOut = null;
     public Animation mSlideUpIn = null;
     // The currently selected month and year
-//    public int mCurrentMonthIndex;
-//    public int mCurrentYear;
+    public int mCurrentMonthIndex;
+    public int mCurrentYear;
 //    public Calendar mCurrentDisplayedDate;
     public View mCurrentMonthView = null;
     //Currently display calendar (month)
     public Calendar mCalendar = null;
 
     public SimpleDateFormat sdf = null;
+
+    private GridCellAdapter adapter = null;
 
     //Cached layouts
     RelativeLayout mMonthView1 = null;
@@ -289,16 +296,24 @@ public class yacalendar extends Activity
         //get the current version and create the database if needed
         dbHelper = new DBHelper(this);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor c =  db.query(CalendarContract.INFO_TABLE_NAME, null, null, null, null, null, null);
+        Cursor c = null;
+        try {
+            c = db.query(CalendarContract.INFO_TABLE_NAME, null, null, null, null, null, null);
+        }
+        catch(Exception e)
+        {
+            c  = null;
+        }
 
-        if(c.getCount() > 0)
+        if(c != null && c.getCount() > 0)
         {
             currentCalendarVersion = c.getInt(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_CALENDAR_VERSION));
         }
         else
         {
-            urlString = Constants.SERVER_ADDRESS + "/getInfo/npo/das";
-            new InfoServerCall(this).execute(urlString);
+            //TODO get this info from the server
+//            urlString = Constants.SERVER_ADDRESS + "/getInfo/npo/das";
+//            new InfoServerCall(this).execute(urlString);
         }
 
 
@@ -328,8 +343,10 @@ public class yacalendar extends Activity
     private void InitializeData()
     {
         mCalendar = Calendar.getInstance();
-//        mCurrentMonthIndex = mCalendar.get(Calendar.MONTH);
-//        mCurrentYear = mCalendar.get(Calendar.YEAR);
+        mCurrentMonthIndex = mCalendar.get(Calendar.MONTH);
+        mCurrentYear = mCalendar.get(Calendar.YEAR);
+
+
 
 
 //        mWeekId = new int[6];
@@ -476,6 +493,10 @@ public class yacalendar extends Activity
         mCalendar.set(Calendar.MONTH, mCurrentMonthIndex); //January == 0
         mCalendar.set(Calendar.DATE, mCurrentDisplayedDate);
 */
+        GridView calendarView = (GridView)findViewById(R.id.calendar);
+        adapter = new GridCellAdapter(this, R.layout.day, mCurrentMonthIndex, mCurrentYear);
+        adapter.notifyDataSetChanged();
+        calendarView.setAdapter(adapter);
 
         mCurrentMonthView = mMonthView1;
 
