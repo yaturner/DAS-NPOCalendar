@@ -332,19 +332,21 @@ public class yacalendar extends Activity
 //        mCurrentYear = mCalendar.get(Calendar.YEAR);
 
 
-        mWeekId = new int[6];
-        TypedArray ids = getResources().obtainTypedArray(R.array.WeekId);
-        for (int iPos = 0; iPos < ids.length(); iPos++)
-        {
-            mWeekId[iPos] = ids.getResourceId(iPos, 0);
-        }
+//        mWeekId = new int[6];
+//        TypedArray ids = getResources().obtainTypedArray(R.array.WeekId);
+//        for (int iPos = 0; iPos < ids.length(); iPos++)
+//        {
+//            mWeekId[iPos] = ids.getResourceId(iPos, 0);
+//        }
+//
+//        mDayId = new int[kNumDaysOfWeek];
+//        ids = getResources().obtainTypedArray(R.array.DayId);
+//        for (int iPos = 0; iPos < kNumDaysOfWeek; iPos++)
+//        {
+//            mDayId[iPos] = ids.getResourceId(iPos, 0);
+//        }
 
-        mDayId = new int[kNumDaysOfWeek];
-        ids = getResources().obtainTypedArray(R.array.DayId);
-        for (int iPos = 0; iPos < kNumDaysOfWeek; iPos++)
-        {
-            mDayId[iPos] = ids.getResourceId(iPos, 0);
-        }
+
 
 /*
         monthBackgroundId = new int[kNumMonths];

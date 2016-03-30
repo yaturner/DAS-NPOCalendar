@@ -1,12 +1,4 @@
 <resources>
-    <integer-array name="WeekId">
-        <item>@id/week00</item>
-        <item>@id/week01</item>
-        <item>@id/week02</item>
-        <item>@id/week03</item>
-        <item>@id/week04</item>
-        <item>@id/week05</item>
-    </integer-array>
     <integer-array name="DayId">
         <item>@id/day00</item>
         <item>@id/day01</item>

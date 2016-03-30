@@ -11,19 +11,19 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_below="@id/TextMonthName"
-        android:padding="1dp"
         android:layout_margin="1dp"
+        android:padding="1dp"
         android:stretchColumns="*">
 
         <TableRow
             android:id="@+id/DOM_header_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:padding="1dp"
             android:layout_margin="1dp"
-            android:background="#A000A0A0">
+            android:layout_weight="1"
+            android:background="#A000A0A0"
+            android:gravity="center"
+            android:padding="1dp">
 
             <TextView
                 android:id="@+id/Text01"
@@ -110,31 +110,13 @@
                 android:textStyle="bold"></TextView>
         </TableRow>
 
-        <include
-            android:id="@+id/week00"
-            layout="@layout/week" />
-
-        <include
-            android:id="@+id/week01"
-            layout="@layout/week" />
-
-        <include
-            android:id="@+id/week02"
-            layout="@layout/week" />
-
-        <include
-            android:id="@+id/week03"
-            layout="@layout/week" />
-
-        <include
-            android:id="@+id/week04"
-            layout="@layout/week" />
-
-        <include
-            android:id="@+id/week05"
-            layout="@layout/week" />
-
     </TableLayout>
 
-
+    <GridView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/calendar"
+        android:layout_below="@id/month"
+        android:numColumns="7" >
+    </GridView>
 </RelativeLayout>
