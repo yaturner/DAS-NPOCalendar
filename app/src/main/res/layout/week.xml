@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:layout_weight="1"
+          android:background="#00000000"
+          android:gravity="center"
+          android:padding="1dp"
+        android:layout_margin="1dp">
+
+    <include
+        android:id="@+id/day00"
+        layout="@layout/day"/>
+
+    <include
+        android:id="@+id/day01"
+        layout="@layout/day"/>
+
+    <include
+        android:id="@+id/day02"
+        layout="@layout/day"/>
+
+    <include
+        android:id="@+id/day03"
+        layout="@layout/day"/>
+
+    <include
+        android:id="@+id/day04"
+        layout="@layout/day"/>
+
+    <include
+        android:id="@+id/day05"
+        layout="@layout/day"/>
+
+    <include
+        android:id="@+id/day06"
+        layout="@layout/day"/>
+</TableRow>

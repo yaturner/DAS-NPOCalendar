@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--	<ListPreference android:title="Date Highlighting Method"-->
+    <!--		android:summary="This preference changes how a date with a note is highlighted"-->
+    <!--		android:key="@string/preference_highlight_method" android:entries="@array/highlight_method"-->
+    <!--		android:entryValues="@array/highlight_method_value" />-->
+    <!---->
+    <!--	<ListPreference android:title="DOM Background Color"-->
+    <!--		android:summary="This preference changes the background color for the day names header"-->
+    <!--		android:key="@string/preference_DOM_background_color" android:entries="@array/dom_background_color"-->
+    <!--		android:entryValues="@array/dom_background_color_value" />-->
+
+    <CheckBoxPreference
+        android:defaultValue="1"
+        android:key="@string/preference_date_outline"
+        android:summary="Draw an outline around each date"
+        android:title="Outline Date Cells" />
+
+    <!--<com.das.yacalendar.SeekBarPreference  -->
+    <!--                android:key="@string/preference_alpha"-->
+    <!--                android:defaultValue="64"-->
+    <!--                android:title="Alpha" />               -->
+
+</PreferenceScreen>
+                

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/info_view"
+    android:visibility="gone">
+
+    <LinearLayout
+        android:id="@+id/helpscreen_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:background="#A000FFFF"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/ImageView01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:src="@drawable/icon"></ImageView>
+
+        <TextView
+            android:id="@+id/helpscreen_version_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical"
+            android:paddingLeft="25dip"
+            android:text="Version 1.0"
+            android:textColor="#000000"
+            android:textSize="24sp"></TextView>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/helpscreen_title"
+        android:autoLink="email|web|phone"
+        android:background="#80FFFFFF"
+        android:text="@string/about"
+        android:textColor="#FF000000"
+        android:textSize="18sp"></TextView>
+
+    <Button
+        android:id="@+id/BtnHelpNext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:clickable="true"
+        android:onClick="BtnHelpNextClickHandler"
+        android:text="@string/Next"></Button>
+
+    <Button
+        android:id="@+id/BtnHelpDone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:clickable="true"
+        android:onClick="BtnHelpDoneHandler"
+        android:text="@string/Menu_Exit"></Button>
+
+
+</RelativeLayout>

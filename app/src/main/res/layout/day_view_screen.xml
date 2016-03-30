@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#D0000000"
+    android:visibility="gone">
+
+    <LinearLayout
+        android:id="@+id/day_view"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+
+
+        <TextView
+            android:id="@+id/day_view_title"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFFFF"
+            android:textSize="18sp"></TextView>
+
+        <ListView
+            android:id="@+id/day_listview"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:choiceMode="none"
+            android:divider="#FFFFFFFF"></ListView>
+
+    </LinearLayout>
+</RelativeLayout>

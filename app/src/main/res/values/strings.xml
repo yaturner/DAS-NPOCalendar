@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Application name -->
+    <string name="app_name">NPO Calendar</string>
+    <string name="Working">Working</string>
+
+    <!-- names of the months -->
+    <string name="month00">January</string>
+    <string name="month01">February</string>
+    <string name="month02">March</string>
+    <string name="month03">April</string>
+    <string name="month04">May</string>
+    <string name="month05">June</string>
+    <string name="month06">July</string>
+    <string name="month07">August</string>
+    <string name="month08">September</string>
+    <string name="month09">October</string>
+    <string name="month10">November</string>
+    <string name="month11">December</string>
+    <!-- names of the days of the week -->
+    <string name="day00">Sun</string>
+    <string name="day01">Mon</string>
+    <string name="day02">Tue</string>
+    <string name="day03">Wed</string>
+    <string name="day04">Thu</string>
+    <string name="day05">Fri</string>
+    <string name="day06">Sat</string>
+    <!-- menu strings -->
+    <string name="Menu_Context_Title">Event</string>
+    <string name="Menu_Day">Day</string>
+    <string name="Menu_Month">Month</string>
+    <string name="Menu_Edit">Edit</string>
+    <string name="Menu_Preferences">Settings</string>
+    <string name="Menu_Help">Help</string>
+    <string name="Menu_Exit">Exit</string>
+    <string name="Menu_New">New</string>
+    <string name="Menu_Delete">Delete</string>
+    <string name="Menu_Clear_All">Clear All</string>
+    <string name="Menu_Done">Done</string>
+    <string name="Menu_Cancel">Cancel</string>
+    <string name="Menu_Yes">Yes</string>
+    <!-- Help Screen strings -->
+    <string name="visit_website">Visit Website</string>
+	<string name="about">www.das.com\nIf you have and
+		suggestions or bug reports, please email admin@iFundraizing.com
+	</string>
+	<string name="help">Thanks for supporting your local school/organization Here are some tips for working with your new Calendar.
+\n
+1: <b>Swipe</b> - Main navigation style.  Move calendar month to month by swiping fingers left or right across the screen.  Swipe from top of calendar down and you can "hide" the calendar, just to enjoy the picture.  Swipe from bottom to top of the screen to bring the calendar back.\n
+2: <b>Press and Hold</b> - any day of the month and you will shift into day view and be able to tap on a note field and add, remove or change text in that field.\n
+3: <b>Use the Menu Key</b> - Bottom of the screen to access features and functionality of the application.  Be sure to look at all the functionality and settings you have available and see what else the calendar can do to..\n
+4: <b>Make sure to Exit</b> - when finished with the application, please choose menu and then press exit to shut down the application and then when the you are ready to start it up again, use your normal process.\n
+\n
+Thanks,
+ \n
+<i>IFundraizing Staff</i></string>
+    <string name="Next">Next</string>
+    <string name="Prev">Prev</string>
+    <!-- EULA -->
+    <string name="eula_title">License</string>
+    <string name="eula_accept">Accept</string>
+    <string name="eula_refuse">Refuse</string>
+    <!-- Preferences -->
+    <string name="prefTitle">Preferences</string>
+    <string name="preference_highlight_method">highlight_method</string>
+    <string name="preference_DOM_background_color">DOM_background_color</string>
+    <string name="preference_date_outline">date_outline</string>
+    <string name="preference_alpha">alpha</string>
+    <!-- Misc -->
+    <string name="Text_Edit_Hint">Touch <b>here</b> to enter text</string>
+    <string name="cancel_warning">All changes will be lost.\nDo you wish to continue?</string>
+</resources>

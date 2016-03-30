@@ -1,0 +1,61 @@
+<resources>
+    <integer-array name="WeekId">
+        <item>@id/week00</item>
+        <item>@id/week01</item>
+        <item>@id/week02</item>
+        <item>@id/week03</item>
+        <item>@id/week04</item>
+        <item>@id/week05</item>
+    </integer-array>
+    <integer-array name="DayId">
+        <item>@id/day00</item>
+        <item>@id/day01</item>
+        <item>@id/day02</item>
+        <item>@id/day03</item>
+        <item>@id/day04</item>
+        <item>@id/day05</item>
+        <item>@id/day06</item>
+    </integer-array>
+    <integer-array name="MonthBackgroundIds">
+        <item>@drawable/month1</item>
+        <item>@drawable/month2</item>
+        <item>@drawable/month3</item>
+        <item>@drawable/month4</item>
+        <item>@drawable/month5</item>
+        <item>@drawable/month6</item>
+        <item>@drawable/month7</item>
+        <item>@drawable/month8</item>
+        <item>@drawable/month9</item>
+        <item>@drawable/month10</item>
+        <item>@drawable/month11</item>
+        <item>@drawable/month12</item>
+    </integer-array>
+    <!--  Date Highlight Method data for Preferences -->
+    <string-array name="highlight_method">
+        <item>Highlight with Color</item>
+        <item>Highlight with Border</item>
+        <item>Highlight with Line</item>
+    </string-array>
+    <string-array name="highlight_method_value">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <!--  DOM TableRow background colorsfor Preferences -->
+    <string-array name="dom_background_color">
+        <item>Red</item>
+        <item>Green</item>
+        <item>Blue</item>
+        <item>Yellow</item>
+        <item>Cyan</item>
+        <item>Magenta</item>
+    </string-array>
+    <string-array name="dom_background_color_value">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+</resources>

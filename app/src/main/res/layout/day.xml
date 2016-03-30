@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.das.yacalendar.DateButton
+        android:id="@+id/BtnDay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn_date_normal"
+        android:clickable="true"
+        android:longClickable="true"
+        android:onClick="BtnDayClickHandler"
+        android:text="01"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+</RelativeLayout>
+
+<!--
+    android:minHeight="30dip"
+    android:minWidth="45dip"
+    android:scaleType="fitXY"
+-->

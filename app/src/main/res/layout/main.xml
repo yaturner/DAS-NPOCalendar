@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+    <!-- MainView refers to the class that will control drawing this layout -->
+    <!-- <com.das.yacalendar.MainView -->
+    <!-- android:id="@+id/Main" android:layout_width="fill_parent" -->
+    <!-- android:layout_height="fill_parent" /> -->
+    <RelativeLayout
+        android:id="@+id/main_screen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/month11">
+
+        <FrameLayout
+            android:id="@+id/MonthName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true">
+
+            <TextView
+                android:id="@+id/TextMonthName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dip"
+                android:layout_marginTop="25dip"
+                android:background="#80000000"
+                android:clickable="false"
+                android:gravity="center_horizontal"
+                android:text="January"
+                android:textSize="36sp"></TextView>
+
+            <RelativeLayout
+                android:id="@+id/framearrows"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/leftarrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/btn_arrow_left"
+                    android:clickable="true"
+                    android:onClick="BtnMonthLeftArrowClickHandler"
+                    android:visibility="invisible"></ImageView>
+
+                <ImageView
+                    android:id="@+id/rightarrow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/btn_arrow_right"
+                    android:clickable="true"
+                    android:onClick="BtnMonthRightArrowClickHandler"
+                    android:visibility="invisible"></ImageView>
+            </RelativeLayout>
+        </FrameLayout>
+
+
+        <ViewFlipper
+            android:id="@+id/monthviewflipper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/MonthFooter">
+
+            <include
+                android:id="@+id/MonthView1"
+                layout="@layout/month_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <include
+                android:id="@+id/MonthView2"
+                layout="@layout/month_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+
+        </ViewFlipper>
+
+        <ScrollView
+            android:id="@+id/MonthFooter"
+            android:layout_width="match_parent"
+            android:layout_height="75dip"
+            android:layout_alignParentBottom="true"
+            android:focusable="true"
+            android:scrollbarStyle="insideOverlay"
+            android:scrollbars="vertical">
+
+            <TextView
+                android:id="@+id/TextMonthFooter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="#A0000000"
+                android:textSize="18sp"
+                android:textStyle="bold"></TextView>
+        </ScrollView>
+
+    </RelativeLayout>
+
+    <include
+        android:id="@+id/help_screens"
+        layout="@layout/help_screens"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+    <include
+        android:id="@+id/splash_screen"
+        layout="@layout/splash_screen"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+    <include
+        android:id="@+id/day_view_screen"
+        layout="@layout/day_view_screen"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
+</FrameLayout>

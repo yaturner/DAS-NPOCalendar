@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TableLayout
+        android:id="@+id/month"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/TextMonthName"
+        android:padding="1dp"
+        android:layout_margin="1dp"
+        android:stretchColumns="*">
+
+        <TableRow
+            android:id="@+id/DOM_header_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:padding="1dp"
+            android:layout_margin="1dp"
+            android:background="#A000A0A0">
+
+            <TextView
+                android:id="@+id/Text01"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="5dip"
+                android:paddingTop="5dip"
+                android:text="@string/day00"
+                android:textSize="16sp"
+                android:textStyle="bold"></TextView>
+
+            <TextView
+                android:id="@+id/Text02"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="5dip"
+                android:paddingTop="5dip"
+                android:text="@string/day01"
+                android:textSize="16sp"
+                android:textStyle="bold"></TextView>
+
+            <TextView
+                android:id="@+id/Text03"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="5dip"
+                android:paddingTop="5dip"
+                android:text="@string/day02"
+                android:textSize="16sp"
+                android:textStyle="bold"></TextView>
+
+            <TextView
+                android:id="@+id/Text04"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="5dip"
+                android:paddingTop="5dip"
+                android:text="@string/day03"
+                android:textSize="16sp"
+                android:textStyle="bold"></TextView>
+
+            <TextView
+                android:id="@+id/Text05"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="5dip"
+                android:paddingTop="5dip"
+                android:text="@string/day04"
+                android:textSize="16sp"
+                android:textStyle="bold"></TextView>
+
+            <TextView
+                android:id="@+id/Text06"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="5dip"
+                android:paddingTop="5dip"
+                android:text="@string/day05"
+                android:textSize="16sp"
+                android:textStyle="bold"></TextView>
+
+            <TextView
+                android:id="@+id/Text07"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="5dip"
+                android:paddingTop="5dip"
+                android:text="@string/day06"
+                android:textSize="16sp"
+                android:textStyle="bold"></TextView>
+        </TableRow>
+
+        <include
+            android:id="@+id/week00"
+            layout="@layout/week" />
+
+        <include
+            android:id="@+id/week01"
+            layout="@layout/week" />
+
+        <include
+            android:id="@+id/week02"
+            layout="@layout/week" />
+
+        <include
+            android:id="@+id/week03"
+            layout="@layout/week" />
+
+        <include
+            android:id="@+id/week04"
+            layout="@layout/week" />
+
+        <include
+            android:id="@+id/week05"
+            layout="@layout/week" />
+
+    </TableLayout>
+
+
+</RelativeLayout>
