@@ -38,7 +38,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.nfc.FormatException;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -56,7 +55,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
@@ -85,8 +83,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLDataException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -143,8 +139,6 @@ public class yacalendar extends Activity
     //Currently display calendar (month)
     public Calendar mCalendar = null;
 
-    public SimpleDateFormat sdf = null;
-
     private GridCellAdapter adapter = null;
 
     //Cached layouts
@@ -197,7 +191,7 @@ public class yacalendar extends Activity
     private CalendarInfo calendarInfo = null;
     private ProgressDialog progressDialog = null;
     private View mainView = null;
-
+    private TypedArray monthBackground;
     public Handler msgHandler = null;
 
     public final static int kMessageInfo = 1;
@@ -224,8 +218,6 @@ public class yacalendar extends Activity
 
         super.onCreate(savedInstanceState);
         singleton = this;
-
-        sdf = new SimpleDateFormat(Constants.SHORT_DATE_FORMAT);
 
         // window features - must be set prior to calling setContentView...
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -351,6 +343,8 @@ public class yacalendar extends Activity
         mCurrentMonthIndex = mCalendar.get(Calendar.MONTH);
         mCurrentYear = mCalendar.get(Calendar.YEAR);
 
+        monthBackground = getResources().obtainTypedArray(R.array.MonthBackgroundIds);
+
         dbHelper = new DBHelper(this);
         File root;
         File fin;
@@ -452,13 +446,13 @@ public class yacalendar extends Activity
             len = obj_in.readInt();
             b = new byte[len];
             red = obj_in.read( b, 0, len );
-            mStartDate.setTime(parseDate( new String(b)));
+            mStartDate.setTime(parseDate( new String(b), Constants.INTERNAL_SHORT_DATE_FORMAT));
 
             //End date for the calendar
             len = obj_in.readInt();
             b = new byte[len];
             red = obj_in.read( b, 0, len );
-            mEndDate.setTime(parseDate(new String(b)));
+            mEndDate.setTime(parseDate(new String(b), Constants.INTERNAL_SHORT_DATE_FORMAT));
 
             //Current state info
             mCurrentDay = obj_in.readInt();
@@ -515,9 +509,9 @@ public class yacalendar extends Activity
      * @param dateString
      *            the date to set
      */
-    public static Date parseDate( String dateString )
+    public static Date parseDate( String dateString, final String format )
     {
-        SimpleDateFormat sdf = new SimpleDateFormat( Constants.INTERNAL_SHORT_DATE_FORMAT );
+        SimpleDateFormat sdf = new SimpleDateFormat( format );
         Date date = null;
         try
         {
@@ -531,9 +525,9 @@ public class yacalendar extends Activity
         return date;
     }
 
-    public static String formatDate(Calendar date)
+    public static String formatDate(Calendar date, final String format)
     {
-        SimpleDateFormat sdf = new SimpleDateFormat( Constants.INTERNAL_SHORT_DATE_FORMAT );
+        SimpleDateFormat sdf = new SimpleDateFormat( format );
         String dateString = null;
         dateString = sdf.format(date.getTime());
 
@@ -1463,10 +1457,7 @@ public class yacalendar extends Activity
 	/*                          Getters & Setters                                  */
 	/*                                                                             */
     /*******************************************************************************/
-    public SimpleDateFormat getSdf()
-    {
-        return sdf;
-    }
+
 
 
     /*******************************************************************************/
@@ -1832,7 +1823,9 @@ public class yacalendar extends Activity
         monthName.setText(new SimpleDateFormat("MMM - yyyy").format(mCalendar.getTime()));
         //Set the calendar background picture, if it available from the server
         ////Bitmap bitmap = calendarInfo.getMonthImage(mCalendar.get(Calendar.MONTH));
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.month1);
+
+        int resId = monthBackground.getResourceId(mCurrentMonthIndex, 0);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), resId);
         if(bitmap != null)
         {
             BitmapDrawable d = new BitmapDrawable(getResources(), bitmap);

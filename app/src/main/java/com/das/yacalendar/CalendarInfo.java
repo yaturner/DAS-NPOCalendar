@@ -31,16 +31,10 @@ public class CalendarInfo
         this.endDate = Calendar.getInstance();
         this.monthImage = new ArrayList<Bitmap>();
         this.version = version;
-        try
-        {
-            this.startDate.setTime(yacalendar.getInstance().sdf.parse(startDate));
-            this.endDate.setTime(yacalendar.getInstance().sdf.parse(endDate));
-            Log.d(TAG, "startDate = " + this.startDate.toString());
-            Log.d(TAG, "endDate = " + this.endDate.toString());
-        } catch (ParseException e)
-        {
-            e.printStackTrace();
-        }
+        this.startDate.setTime(yacalendar.parseDate(startDate, Constants.INTERNAL_SHORT_DATE_FORMAT));
+        this.endDate.setTime(yacalendar.parseDate(endDate, Constants.INTERNAL_SHORT_DATE_FORMAT));
+        Log.d(TAG, "startDate = " + this.startDate.toString());
+        Log.d(TAG, "endDate = " + this.endDate.toString());
         int diffYear = this.endDate.get(Calendar.YEAR) - this.startDate.get(Calendar.YEAR);
         //month is 0 based, full year is 11
         int diffMonth = diffYear * 12 + this.endDate.get(Calendar.MONTH) - this.startDate.get(Calendar.MONTH);

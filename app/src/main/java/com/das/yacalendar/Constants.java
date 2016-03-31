@@ -13,6 +13,7 @@ public class Constants
 
     public final static String SHORT_DATE_FORMAT = "MM/dd/yyyy";
     public final static String INTERNAL_SHORT_DATE_FORMAT = "MMddyyyy";
+    public final static String DATABASE_SHORT_DATE_FORMAT = "yyyyMMdd";
 
     //Note
     public static final int NOTE_PRIORITY_NONE = -1;

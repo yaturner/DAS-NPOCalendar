@@ -9,8 +9,11 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.das.yacalendar.DBHelper;
 import com.das.yacalendar.DateButton;
+import com.das.yacalendar.Note;
 import com.das.yacalendar.R;
+import com.google.common.collect.ArrayListMultimap;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,13 +46,12 @@ public class GridCellAdapter extends BaseAdapter implements View.OnClickListener
     private int currentWeekDay;
     private DateButton gridcell;
     private TextView num_events_per_day;
-    private HashMap<String, Integer> eventsPerMonthMap;
+    private ArrayListMultimap<Integer, Note> eventsPerMonthMap;
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat(
             "dd-MMM-yyyy");
 
     // Days in Current Month
-    public GridCellAdapter(Context context, int textViewResourceId,
-                           int month, int year) {
+    public GridCellAdapter(Context context, int textViewResourceId, int month, int year) {
         super();
         this.context = context;
         this.list = new ArrayList<String>();
@@ -209,11 +211,9 @@ public class GridCellAdapter extends BaseAdapter implements View.OnClickListener
      * @param month
      * @return
      */
-    private HashMap<String, Integer> findNumberOfEventsPerMonth(int year,
-                                                                int month) {
-        HashMap<String, Integer> map = new HashMap<String, Integer>();
-
-        return map;
+    private ArrayListMultimap<Integer, Note> findNumberOfEventsPerMonth(int year, int month) {
+        DBHelper dbHelper = new DBHelper(context);
+        return dbHelper.getNotesForMonth(month, year);
     }
 
     @Override
@@ -251,21 +251,22 @@ public class GridCellAdapter extends BaseAdapter implements View.OnClickListener
 
 // Set the Day GridCell
         gridcell.setText(theday);
-        //gridcell.setTag(theday + "-" + themonth + "-" + theyear);
+        List<Note> notes = eventsPerMonthMap.get(position);
+        gridcell.setTag(notes);
         Log.d(TAG, "Setting GridCell " + theday + "-" + themonth + "-"
                 + theyear);
 
-//        if (day_color[1].equals("GREY")) {
-//            gridcell.setTextColor(context.getResources()
-//                    .getColor(R.color.lightgray));
-//        }
-//        if (day_color[1].equals("WHITE")) {
-//            gridcell.setTextColor(context.getResources().getColor(
-//                    R.color.lightgray02));
-//        }
-//        if (day_color[1].equals("BLUE")) {
-//            gridcell.setTextColor(context.getResources().getColor(R.color.orrange));
-//        }
+        if (day_color[1].equals("GREY")) {
+            gridcell.setTextColor(context.getResources()
+                    .getColor(R.color.lightgray));
+        }
+        if (day_color[1].equals("WHITE")) {
+            gridcell.setTextColor(context.getResources().getColor(
+                    R.color.lightgray02));
+        }
+        if (day_color[1].equals("BLUE")) {
+            gridcell.setTextColor(context.getResources().getColor(R.color.orange));
+        }
         return row;
     }
 

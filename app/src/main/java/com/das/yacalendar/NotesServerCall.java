@@ -42,7 +42,7 @@ public class NotesServerCall extends BasicAPICall
                 for (int iDay = 0; iDay < days.length(); iDay++)
                 {
                     JSONObject day = days.getJSONObject(iDay);
-                    Date date = yacalendar.getInstance().sdf.parse(day.getString("Date"));
+                    Date date = yacalendar.parseDate(day.getString("Date"), Constants.INTERNAL_SHORT_DATE_FORMAT);
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(date);
                     Note note = new Note(day.getInt("id"), cal, day.getInt("priority"),
@@ -50,11 +50,7 @@ public class NotesServerCall extends BasicAPICall
                     notes.add(note);
                 }
 
-            } catch (JSONException e)
-            {
-                e.printStackTrace();
-            } catch (ParseException e)
-            {
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
         }

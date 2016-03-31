@@ -73,7 +73,7 @@ public class Note implements Serializable
         int len = text.length();
         obj_out.writeInt(len);
         obj_out.writeBytes(text);
-        String dateString = yacalendar.formatDate(date);
+        String dateString = yacalendar.formatDate(date, Constants.INTERNAL_SHORT_DATE_FORMAT);
         len = dateString.length();
         obj_out.writeInt(len);
         obj_out.writeBytes(dateString);
@@ -97,7 +97,7 @@ public class Note implements Serializable
         b = new byte[len];
         red = obj_in.read(b, 0, len);
         date = Calendar.getInstance();
-        date.setTime(yacalendar.parseDate(new String(b)));
+        date.setTime(yacalendar.parseDate(new String(b), Constants.INTERNAL_SHORT_DATE_FORMAT));
         Log.d(TAG, "Restore\\\\ read = " + red + " len = " + len + " date = " + date);
     }
 

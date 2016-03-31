@@ -29,6 +29,8 @@ import android.graphics.drawable.shapes.RoundRectShape;
 import android.util.AttributeSet;
 import android.widget.Button;
 
+import java.util.List;
+
 /**
  * @author yaturner
  */
@@ -99,9 +101,12 @@ public class DateButton extends Button
 
         Drawable d = getResources().getDrawable(R.drawable.btn_date_normal);
 
-        Note note = (Note) getTag();
-        if (note != null)
+        List<Note> notes = (List<Note>) getTag();
+        if (notes != null && notes.size() > 0)
         {
+            //set priority based on first note if there is more than one for this day
+            Note note = notes.get(0);
+
             int priority = Constants.NOTE_PRIORITY_LOW;
             if (yacalendar.SUPPORT_NOTE_PRIORITY)
             {

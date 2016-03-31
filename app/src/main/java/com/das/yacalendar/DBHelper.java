@@ -10,10 +10,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.google.common.collect.ArrayListMultimap;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 // Helper class for DB creation/updating
@@ -123,16 +127,34 @@ public class DBHelper extends SQLiteOpenHelper
     public long addNote(final Note note)
     {
         SQLiteDatabase db = this.openDatabase();
+        long note_id = 0;
 
         if (note != null)
         {
+            String dateString = yacalendar.formatDate(note.getDate(), Constants.DATABASE_SHORT_DATE_FORMAT);
+
+            //does it already exist in the database
+            Cursor c =  db.query(CalendarContract.NOTE_TABLE_NAME, null,
+                    CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_PRIORITY + " = '"+ note.getPriority() + "' and " +
+                    CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_TEXT + " = '"+ note.getText() + "' and " +
+                    CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_DATE + " = '"+ dateString + "'",
+                    null, null, null, null);
+
+            if(c.getCount() > 0)
+            {
+                c.moveToFirst();
+                note_id = c.getInt(c.getColumnIndex(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_ID));
+                c.close();
+                return note_id;
+            }
             ContentValues values = new ContentValues();
 
             values.put(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_PRIORITY, note.getPriority());
             values.put(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_TEXT, note.getText());
-            values.put(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_DATE, yacalendar.formatDate(note.getDate()));
+            values.put(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_DATE, dateString);
 
-            long note_id = db.insertOrThrow(CalendarContract.NOTE_TABLE_NAME, null, values);
+
+            note_id = db.insertWithOnConflict(CalendarContract.NOTE_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 
             return note_id;
         }
@@ -142,6 +164,12 @@ public class DBHelper extends SQLiteOpenHelper
         }
     }
 
+    /**
+     * getNote
+     *
+     * @param id
+     * @return
+     */
     public Note getNote(final int id)
     {
         SQLiteDatabase db = this.openDatabase();
@@ -160,19 +188,39 @@ public class DBHelper extends SQLiteOpenHelper
         int priority = c.getInt(c.getColumnIndex(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_PRIORITY));
         String text = c.getString(c.getColumnIndex(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_TEXT));
         String dateString = c.getString(c.getColumnIndex(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_DATE));
-
-        try
-        {
-            date.setTime(yacalendar.getInstance().getSdf().parse(dateString));
-        }
-        catch(ParseException e)
-        {
-            throw new RuntimeException(e);
-        }
-
+        date.setTime(yacalendar.parseDate(dateString, Constants.DATABASE_SHORT_DATE_FORMAT));
         Note note = new Note(_id, date, priority, text);
 
+        c.close();
         return note;
+    }
+
+    public ArrayListMultimap<Integer, Note> getNotesForMonth(final int month, final int year)
+    {
+        SQLiteDatabase db = this.openDatabase();
+        String month2 = (month<10)?"0"+month:""+month;
+        ArrayListMultimap<Integer, Note> notes = ArrayListMultimap.create();
+
+        Cursor c =  db.query(CalendarContract.NOTE_TABLE_NAME, null,
+                "date between '" + year+month2+"01' and '"+year+month2+"31'", null, null, null, null);
+
+        if(c.getCount() > 0) {
+            Calendar date = Calendar.getInstance();
+
+            c.moveToFirst();
+            do {
+                int _id = c.getInt(c.getColumnIndex(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_ID));
+                int priority = c.getInt(c.getColumnIndex(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_PRIORITY));
+                String text = c.getString(c.getColumnIndex(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_TEXT));
+                String dateString = c.getString(c.getColumnIndex(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_DATE));
+                date.setTime(yacalendar.parseDate(dateString, Constants.DATABASE_SHORT_DATE_FORMAT));
+
+                Note note = new Note(_id, date, priority, text);
+                notes.put(date.get(Calendar.DAY_OF_MONTH), note);
+            } while (c.moveToNext());
+        }
+        c.close();
+        return notes;
     }
 
     /**
