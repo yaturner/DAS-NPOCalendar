@@ -1524,11 +1524,9 @@ public class yacalendar extends Activity
         lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         lv.setItemsCanFocus(true);
         registerForContextMenu(lv);
-        lv.setOnItemClickListener(new OnItemClickListener()
-        {
+        lv.setOnItemClickListener(new OnItemClickListener() {
 
-            public void onItemClick(AdapterView<?> arg0, View v, int position, long id)
-            {
+            public void onItemClick(AdapterView<?> arg0, View v, int position, long id) {
                 mNoteListSelectedItemIndex = position;
                 v.performLongClick();
             }
@@ -1850,19 +1848,22 @@ public class yacalendar extends Activity
         }
     }
 
-    private void UpdateFooter(final List<Note> notes)
+    private void UpdateFooter(final Note note)
     {
+        List<Note> notes = new ArrayList<>();
+        notes.add(note);
+        UpdateFooter(notes);
+    }
+
+    private void UpdateFooter(final List<Note> notes) {
         View footer = findViewById(R.id.MonthFooter);
 
-        if (notes == null || notes.size() == 0)
-        {
+        if (notes == null || notes.size() == 0) {
             footer.setVisibility(View.INVISIBLE);
-        } else
-        {
+        } else {
             TextView tv = (TextView) findViewById(R.id.TextMonthFooter);
             StringBuilder sb = new StringBuilder();
-            for(Note note : notes)
-            {
+            for (Note note : notes) {
                 sb.append(note.getText());
                 sb.append("\n");
             }
@@ -1970,7 +1971,7 @@ public class yacalendar extends Activity
     public void SlideOutMonthView()
     {
         mMonthViewFlipper.startAnimation(mSlideDownOut);
-        UpdateFooter(null);
+        UpdateFooter(new ArrayList<Note>());
         FrameLayout title = (FrameLayout) findViewById(R.id.MonthName);
         title.setVisibility(View.INVISIBLE);
     }
