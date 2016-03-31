@@ -221,7 +221,7 @@ public class yacalendar extends Activity
         singleton = this;
 
         // window features - must be set prior to calling setContentView...
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //////////requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.main);
 
         mainView = findViewById( R.id.main_screen );
