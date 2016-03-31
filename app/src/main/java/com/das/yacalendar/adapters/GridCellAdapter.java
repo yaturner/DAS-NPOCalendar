@@ -13,6 +13,7 @@ import com.das.yacalendar.DBHelper;
 import com.das.yacalendar.DateButton;
 import com.das.yacalendar.Note;
 import com.das.yacalendar.R;
+import com.das.yacalendar.yacalendar;
 import com.google.common.collect.ArrayListMultimap;
 
 import java.text.ParseException;
@@ -27,7 +28,7 @@ import java.util.List;
 /**
  * Created by yaturner on 3/29/2016.
  */
-public class GridCellAdapter extends BaseAdapter implements View.OnClickListener {
+public class GridCellAdapter extends BaseAdapter  {
     private static final String TAG = GridCellAdapter.class.getSimpleName();
 
     private Context context;
@@ -231,7 +232,6 @@ public class GridCellAdapter extends BaseAdapter implements View.OnClickListener
 
 // Get a reference to the Day gridcell
         gridcell = (DateButton) row.findViewById(R.id.BtnDay);
-        gridcell.setOnClickListener(this);
 
 // ACCOUNT FOR SPACING
 
@@ -284,9 +284,5 @@ public class GridCellAdapter extends BaseAdapter implements View.OnClickListener
 
     public int getCurrentWeekDay() {
         return currentWeekDay;
-    }
-
-    public void onClick(View view) {
-        
     }
 }

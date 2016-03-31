@@ -28,6 +28,10 @@ android {
             java.srcDirs = ['src/main/java', 'src/main/java/db', 'src/main/java/ASyncTasks', 'src/main/java/com.das.yacalendar/Tasks', 'src/main/java/com.das.yacalendar/ASyncTasks']
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
 }
 dependencies {
     compile project(path: ':backend', configuration: 'android-endpoints')

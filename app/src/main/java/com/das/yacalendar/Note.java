@@ -92,6 +92,11 @@ public class Note implements Serializable
         b = new byte[len];
         red = obj_in.read(b, 0, len);
         text = new String(b);
+        //if there are any "'"s change them to "''" for SQL
+        if(text.contains("'"))
+        {
+            text = text.replace("'", "''");
+        }
         Log.d(TAG, "Restore\\\\ read = " + red + " len = " + len + " text = " + text);
         len = obj_in.readInt();
         b = new byte[len];
