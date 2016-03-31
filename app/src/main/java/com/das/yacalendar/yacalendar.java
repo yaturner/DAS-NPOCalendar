@@ -312,6 +312,7 @@ public class yacalendar extends Activity
             //TODO get this info from the server
 //            urlString = Constants.SERVER_ADDRESS + "/getInfo/npo/das";
 //            new InfoServerCall(this).execute(urlString);
+
         }
 
 
@@ -347,6 +348,7 @@ public class yacalendar extends Activity
         monthBackground = getResources().obtainTypedArray(R.array.MonthBackgroundIds);
 
         dbHelper = new DBHelper(this);
+
         File root;
         File fin;
         FileInputStream in;
@@ -470,6 +472,11 @@ public class yacalendar extends Activity
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
+
+        //Set the Calendar info record
+        dbHelper.addInfo("test", 1,
+                formatDate(mStartDate, Constants.DATABASE_SHORT_DATE_FORMAT),
+                formatDate(mEndDate, Constants.DATABASE_SHORT_DATE_FORMAT));
 
         //Set the calendar
         mCalendar.set( mCurrentYear, mCurrentMonthIndex, mCurrentDay );
@@ -1850,6 +1857,12 @@ public class yacalendar extends Activity
         }
     }
 
+    private void UpdateFooter(final Note note) {
+        List<Note> notes = new ArrayList<>();
+        notes.add(note);
+        UpdateFooter(notes);
+    }
+
     private void UpdateFooter(final List<Note> notes)
     {
         View footer = findViewById(R.id.MonthFooter);
@@ -1970,7 +1983,7 @@ public class yacalendar extends Activity
     public void SlideOutMonthView()
     {
         mMonthViewFlipper.startAnimation(mSlideDownOut);
-        UpdateFooter(null);
+        UpdateFooter(new ArrayList<Note>());
         FrameLayout title = (FrameLayout) findViewById(R.id.MonthName);
         title.setVisibility(View.INVISIBLE);
     }
