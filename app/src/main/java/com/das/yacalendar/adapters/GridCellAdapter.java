@@ -182,10 +182,10 @@ public class GridCellAdapter extends BaseAdapter  {
             Log.d(currentMonthName, String.valueOf(i) + " "
                     + getMonthAsString(currentMonth) + " " + yy);
             if (i == getCurrentDayOfMonth()) {
-                list.add(String.valueOf(i) + "-BLUE" + "-"
+                list.add(String.valueOf(i) + "-ORANGE" + "-"
                         + getMonthAsString(currentMonth) + "-" + yy);
             } else {
-                list.add(String.valueOf(i) + "-WHITE" + "-"
+                list.add(String.valueOf(i) + "-BLACK" + "-"
                         + getMonthAsString(currentMonth) + "-" + yy);
             }
         }
@@ -253,14 +253,14 @@ public class GridCellAdapter extends BaseAdapter  {
 
         if (day_color[1].equals("GREY")) {
             gridcell.setTextColor(context.getResources()
-                    .getColor(R.color.lightgray));
+                    .getColor(android.R.color.darker_gray));
         }
-        if (day_color[1].equals("WHITE")) {
+        if (day_color[1].equals("BLACK")) {
             gridcell.setTextColor(context.getResources().getColor(
                     android.R.color.black));
         }
-        if (day_color[1].equals("BLUE")) {
-            gridcell.setTextColor(context.getResources().getColor(R.color.orange));
+        if (day_color[1].equals("ORANGE")) {
+            gridcell.setTextColor(context.getResources().getColor(android.R.color.holo_orange_dark));
         }
         return row;
     }
