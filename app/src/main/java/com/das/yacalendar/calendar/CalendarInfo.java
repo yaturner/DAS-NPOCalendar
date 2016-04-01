@@ -1,9 +1,12 @@
-package com.das.yacalendar;
+package com.das.yacalendar.calendar;
 
 import android.graphics.Bitmap;
 import android.util.Log;
 
-import java.text.ParseException;
+import com.das.yacalendar.Constants;
+import com.das.yacalendar.notes.Note;
+import com.das.yacalendar.yacalendar;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;

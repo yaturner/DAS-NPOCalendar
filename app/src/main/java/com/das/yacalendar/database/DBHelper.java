@@ -1,4 +1,4 @@
-package com.das.yacalendar;
+package com.das.yacalendar.database;
 
 /**
  * Created by yaturner on 3/20/2015.
@@ -10,14 +10,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.das.yacalendar.Constants;
+import com.das.yacalendar.notes.Note;
+import com.das.yacalendar.yacalendar;
 import com.google.common.collect.ArrayListMultimap;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
 
 // Helper class for DB creation/updating
@@ -119,6 +119,25 @@ public class DBHelper extends SQLiteOpenHelper
         database.execSQL(DELETE_STATEMENTS[index]);
     }
 
+    public long addInfo(final String name, final int version, final String startDate, final String endDate)
+    {
+        SQLiteDatabase db = this.openDatabase();
+        long info_id = -1L;
+
+        ContentValues values = new ContentValues();
+
+        //force replace
+        values.put(CalendarContract.CalendarInfoEntry._ID, 0);
+        values.put(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_NPO_NAME, name);
+        values.put(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_CALENDAR_VERSION, version);
+        values.put(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_START_DATE, startDate);
+        values.put(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_END_DATE, endDate);
+
+
+        info_id = db.insertWithOnConflict(CalendarContract.INFO_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+
+        return info_id;
+    }
     /**
      * addInfo
      *
@@ -154,7 +173,7 @@ public class DBHelper extends SQLiteOpenHelper
     public long addNote(final Note note)
     {
         SQLiteDatabase db = this.openDatabase();
-        long note_id = 0;
+        long note_id = -1L;
 
         if (note != null)
         {

@@ -1,7 +1,9 @@
-package com.das.yacalendar;
+package com.das.yacalendar.network;
 
 import android.os.AsyncTask;
 import android.util.Base64;
+
+import com.das.yacalendar.yacalendar;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.das.yacalendar;
+package com.das.yacalendar.database;
 
 /**
  * @author yaturner

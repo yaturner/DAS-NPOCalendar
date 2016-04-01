@@ -1,7 +1,10 @@
-package com.das.yacalendar;
+package com.das.yacalendar.network;
 
 import android.os.Message;
 import android.util.Log;
+
+import com.das.yacalendar.UUDecode;
+import com.das.yacalendar.yacalendar;
 
 import org.json.JSONArray;
 import org.json.JSONException;

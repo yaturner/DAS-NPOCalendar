@@ -6,23 +6,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.TextView;
 
-import com.das.yacalendar.DBHelper;
+import com.das.yacalendar.database.DBHelper;
 import com.das.yacalendar.DateButton;
-import com.das.yacalendar.Note;
+import com.das.yacalendar.notes.Note;
 import com.das.yacalendar.R;
-import com.das.yacalendar.yacalendar;
 import com.google.common.collect.ArrayListMultimap;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 
 /**

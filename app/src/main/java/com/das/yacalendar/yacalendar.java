@@ -56,7 +56,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -75,6 +74,16 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import com.das.yacalendar.adapters.GridCellAdapter;
+import com.das.yacalendar.calendar.CalendarInfo;
+import com.das.yacalendar.database.CalendarContract;
+import com.das.yacalendar.database.DBHelper;
+import com.das.yacalendar.database.DatabaseVersion;
+import com.das.yacalendar.listeners.CalendarGestureListener;
+import com.das.yacalendar.listeners.MonthNameTouchListener;
+import com.das.yacalendar.listeners.SlideInAnimationListener;
+import com.das.yacalendar.listeners.SlideOutAnimationListener;
+import com.das.yacalendar.network.SplashServerCall;
+import com.das.yacalendar.notes.Note;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -221,14 +230,11 @@ public class yacalendar extends Activity
         singleton = this;
 
         // window features - must be set prior to calling setContentView...
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //////////requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.main);
 
         mainView = findViewById( R.id.main_screen );
-        mainView.setVisibility( View.INVISIBLE );
-
-        //InitializeData() here, InitializeGUI() is called after the calendar info is retrieved
-        InitializeData();
+        mainView.setVisibility(View.INVISIBLE);
 
         msgHandler = new Handler()
         {
@@ -305,17 +311,26 @@ public class yacalendar extends Activity
 
         if(c != null && c.getCount() > 0)
         {
+            c.moveToFirst();
             currentCalendarVersion = c.getInt(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_CALENDAR_VERSION));
+            mStartDate = Calendar.getInstance();
+            mEndDate = Calendar.getInstance();
+            String startDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_START_DATE));
+            mStartDate.setTime(parseDate(startDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
+            String endDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_END_DATE));
+            mEndDate.setTime(parseDate(endDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
+            calendarInfo = new CalendarInfo(currentCalendarVersion, startDateString, endDateString);
         }
         else
         {
             //TODO get this info from the server
 //            urlString = Constants.SERVER_ADDRESS + "/getInfo/npo/das";
 //            new InfoServerCall(this).execute(urlString);
-
         }
 
-
+        //InitializeData() here, InitializeGUI() is called after the calendar info is retrieved
+        InitializeData();
+        InitializeGUI();
 /*
         //Get the calendar notes
         urlString = Constants.SERVER_ADDRESS + "/getCalendar/npo/das";
@@ -347,7 +362,10 @@ public class yacalendar extends Activity
 
         monthBackground = getResources().obtainTypedArray(R.array.MonthBackgroundIds);
 
-        dbHelper = new DBHelper(this);
+        if(currentCalendarVersion == 1)
+        {
+            return;
+        }
 
         File root;
         File fin;
@@ -473,7 +491,6 @@ public class yacalendar extends Activity
             e1.printStackTrace();
         }
 
-        //Set the Calendar info record
         dbHelper.addInfo("test", 1,
                 formatDate(mStartDate, Constants.DATABASE_SHORT_DATE_FORMAT),
                 formatDate(mEndDate, Constants.DATABASE_SHORT_DATE_FORMAT));
@@ -509,8 +526,6 @@ public class yacalendar extends Activity
 
         // release it
         in = null;
-
-        InitializeGUI();
     }
 
     /**
@@ -1531,11 +1546,9 @@ public class yacalendar extends Activity
         lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         lv.setItemsCanFocus(true);
         registerForContextMenu(lv);
-        lv.setOnItemClickListener(new OnItemClickListener()
-        {
+        lv.setOnItemClickListener(new OnItemClickListener() {
 
-            public void onItemClick(AdapterView<?> arg0, View v, int position, long id)
-            {
+            public void onItemClick(AdapterView<?> arg0, View v, int position, long id) {
                 mNoteListSelectedItemIndex = position;
                 v.performLongClick();
             }
@@ -1857,25 +1870,22 @@ public class yacalendar extends Activity
         }
     }
 
-    private void UpdateFooter(final Note note) {
+    private void UpdateFooter(final Note note)
+    {
         List<Note> notes = new ArrayList<>();
         notes.add(note);
         UpdateFooter(notes);
     }
 
-    private void UpdateFooter(final List<Note> notes)
-    {
+    private void UpdateFooter(final List<Note> notes) {
         View footer = findViewById(R.id.MonthFooter);
 
-        if (notes == null || notes.size() == 0)
-        {
+        if (notes == null || notes.size() == 0) {
             footer.setVisibility(View.INVISIBLE);
-        } else
-        {
+        } else {
             TextView tv = (TextView) findViewById(R.id.TextMonthFooter);
             StringBuilder sb = new StringBuilder();
-            for(Note note : notes)
-            {
+            for (Note note : notes) {
                 sb.append(note.getText());
                 sb.append("\n");
             }

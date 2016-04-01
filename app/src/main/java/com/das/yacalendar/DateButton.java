@@ -29,6 +29,8 @@ import android.graphics.drawable.shapes.RoundRectShape;
 import android.util.AttributeSet;
 import android.widget.Button;
 
+import com.das.yacalendar.notes.Note;
+
 import java.util.List;
 
 /**
