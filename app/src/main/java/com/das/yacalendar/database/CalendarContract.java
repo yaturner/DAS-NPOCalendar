@@ -1,4 +1,4 @@
-package com.das.yacalendar;
+package com.das.yacalendar.database;
 
 import android.provider.BaseColumns;
 

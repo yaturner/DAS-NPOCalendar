@@ -17,7 +17,7 @@
  * from D'arc Angel Software LLC.                                                *
  *********************************************************************************/
 
-package com.das.yacalendar;
+package com.das.yacalendar.listeners;
 
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,6 +27,9 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
+import com.das.yacalendar.R;
+import com.das.yacalendar.yacalendar;
 
 /**
  * @author yaturner

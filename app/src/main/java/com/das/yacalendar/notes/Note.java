@@ -17,9 +17,12 @@
  * from D'arc Angel Software LLC.                                                *
  *********************************************************************************/
 
-package com.das.yacalendar;
+package com.das.yacalendar.notes;
 
 import android.util.Log;
+
+import com.das.yacalendar.Constants;
+import com.das.yacalendar.yacalendar;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
