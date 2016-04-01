@@ -78,6 +78,7 @@ import com.das.yacalendar.calendar.CalendarInfo;
 import com.das.yacalendar.database.CalendarContract;
 import com.das.yacalendar.database.DBHelper;
 import com.das.yacalendar.database.DatabaseVersion;
+import com.das.yacalendar.listeners.CalendarGestureListener;
 import com.das.yacalendar.listeners.MonthNameTouchListener;
 import com.das.yacalendar.listeners.SlideInAnimationListener;
 import com.das.yacalendar.listeners.SlideOutAnimationListener;

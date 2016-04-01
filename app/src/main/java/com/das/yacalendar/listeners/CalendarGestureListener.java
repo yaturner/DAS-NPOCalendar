@@ -17,18 +17,20 @@
  * from D'arc Angel Software LLC.                                                *
  *********************************************************************************/
 
-package com.das.yacalendar;
+package com.das.yacalendar.listeners;
 
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.das.yacalendar.yacalendar;
 
 import java.util.Calendar;
 
 /**
  * @author yaturner
  */
-class CalendarGestureListener extends SimpleOnGestureListener
+public class CalendarGestureListener extends SimpleOnGestureListener
 {
     // swipe gesture constants
     private static final int SWIPE_MIN_DISTANCE = 120;
