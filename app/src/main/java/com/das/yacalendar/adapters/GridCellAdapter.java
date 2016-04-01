@@ -257,7 +257,7 @@ public class GridCellAdapter extends BaseAdapter  {
         }
         if (day_color[1].equals("WHITE")) {
             gridcell.setTextColor(context.getResources().getColor(
-                    R.color.lightgray02));
+                    android.R.color.black));
         }
         if (day_color[1].equals("BLUE")) {
             gridcell.setTextColor(context.getResources().getColor(R.color.orange));

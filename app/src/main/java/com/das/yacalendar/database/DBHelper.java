@@ -119,26 +119,7 @@ public class DBHelper extends SQLiteOpenHelper
         database.execSQL(DELETE_STATEMENTS[index]);
     }
 
-    public long addInfo(final String name, final int version, final String startDate, final String endDate)
-    {
-        SQLiteDatabase db = this.openDatabase();
-        long info_id = -1L;
-
-        ContentValues values = new ContentValues();
-
-        //force replace
-        values.put(CalendarContract.CalendarInfoEntry._ID, 0);
-        values.put(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_NPO_NAME, name);
-        values.put(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_CALENDAR_VERSION, version);
-        values.put(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_START_DATE, startDate);
-        values.put(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_END_DATE, endDate);
-
-
-        info_id = db.insertWithOnConflict(CalendarContract.INFO_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
-
-        return info_id;
-    }
-    /**
+       /**
      * addInfo
      *
      * @param name

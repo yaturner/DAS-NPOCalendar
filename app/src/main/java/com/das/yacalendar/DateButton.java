@@ -82,7 +82,7 @@ public class DateButton extends Button
 
     private void Initialize()
     {
-        mAlpha = 64;
+        mAlpha = 128;
         mSelected = false;
     }
 

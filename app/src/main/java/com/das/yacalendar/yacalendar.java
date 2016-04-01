@@ -670,23 +670,23 @@ public class yacalendar extends Activity
 
         //Set the calendar
 //        mCurrentDisplayedDate = Calendar.getInstance();
-/*
-        mCalendar.set(Calendar.YEAR, mCurrentYear);
-        mCalendar.set(Calendar.MONTH, mCurrentMonthIndex); //January == 0
-        mCalendar.set(Calendar.DATE, mCurrentDisplayedDate);
-*/
-        GridView calendarView = (GridView)findViewById(R.id.calendar);
-        adapter = new GridCellAdapter(this, R.layout.day, mCurrentMonthIndex, mCurrentYear);
-        adapter.notifyDataSetChanged();
-        calendarView.setAdapter(adapter);
-        calendarView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                BtnDayClickHandler(view);
-                ShowDayView();
-                return true;
-            }
-        });
+//
+//        mCalendar.set(Calendar.YEAR, mCurrentYear);
+//        mCalendar.set(Calendar.MONTH, mCurrentMonthIndex); //January == 0
+//        mCalendar.set(Calendar.DATE, mCurrentDisplayedDate);
+
+//        GridView calendarView = (GridView)findViewById(R.id.calendar);
+//        adapter = new GridCellAdapter(this, R.layout.day, mCurrentMonthIndex, mCurrentYear);
+//        adapter.notifyDataSetChanged();
+//        calendarView.setAdapter(adapter);
+//        calendarView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+//            @Override
+//            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+//                BtnDayClickHandler(view);
+//                ShowDayView();
+//                return true;
+//            }
+//        });
 
         mCurrentMonthView = mMonthView1;
 
@@ -1838,24 +1838,40 @@ public class yacalendar extends Activity
         int firstDayOfWeek = 1;
         Calendar cal = Calendar.getInstance();
 
-/*
-        if (setDate)
-        {
-            mCurrentDisplayedDate = 1;
-            mCalendar.set(mCurrentYear, mCurrentMonthIndex, 1);
-        } else
-        {
-            cal.set(mCurrentYear, mCurrentMonthIndex, 1);
-        }
-*/
-        firstDayOfWeek = mCalendar.get(Calendar.DAY_OF_WEEK) - 1; //Calendar.SUNDAY = 1
+
+//        if (setDate)
+//        {
+//            mCurrentDisplayedDate = 1;
+//            mCalendar.set(mCurrentYear, mCurrentMonthIndex, 1);
+//        } else
+//        {
+//            cal.set(mCurrentYear, mCurrentMonthIndex, 1);
+//        }
+//
+//        firstDayOfWeek = mCalendar.get(Calendar.DAY_OF_WEEK) - 1; //Calendar.SUNDAY = 1
+        //Set the adapter for this month
+        GridView calendarView = (GridView)v.findViewById(R.id.calendar);
+        adapter = new GridCellAdapter(this, R.layout.day,
+                mCalendar.get(Calendar.MONTH)+1, //zero based
+                mCalendar.get(Calendar.YEAR));
+        adapter.notifyDataSetChanged();
+        calendarView.setAdapter(adapter);
+        calendarView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                BtnDayClickHandler(view);
+                ShowDayView();
+                return true;
+            }
+        });
+
         TextView monthName = (TextView) findViewById(R.id.TextMonthName);
         //monthName.setText(getString(mMonthNameStringId[mCurrentMonthIndex]) + " " + mCurrentYear);
         monthName.setText(new SimpleDateFormat("MMM - yyyy").format(mCalendar.getTime()));
         //Set the calendar background picture, if it available from the server
         ////Bitmap bitmap = calendarInfo.getMonthImage(mCalendar.get(Calendar.MONTH));
 
-        int resId = monthBackground.getResourceId(mCurrentMonthIndex, 0);
+        int resId = monthBackground.getResourceId(mCalendar.get(Calendar.MONTH), 0);
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), resId);
         if(bitmap != null)
         {
