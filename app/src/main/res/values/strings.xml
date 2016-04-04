@@ -69,4 +69,5 @@ Thanks,
     <!-- Misc -->
     <string name="Text_Edit_Hint">Touch <b>here</b> to enter text</string>
     <string name="cancel_warning">All changes will be lost.\nDo you wish to continue?</string>
+    <string name="RemindersFor">Reminders for</string>
 </resources>

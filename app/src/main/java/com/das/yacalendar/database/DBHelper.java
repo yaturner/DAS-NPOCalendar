@@ -18,6 +18,7 @@ import com.google.common.collect.ArrayListMultimap;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 // Helper class for DB creation/updating
@@ -80,10 +81,11 @@ public class DBHelper extends SQLiteOpenHelper
                             ");");
             database.execSQL(
                     "CREATE TABLE IF NOT EXISTS "+ CalendarContract.NOTE_TABLE_NAME + "(" +
-                            CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_ID + " INTEGER, " +
+                            CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_ID + " INTEGER primary key autoincrement, " +
                             CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_PRIORITY + " INTEGER, " +
                             CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_TEXT + " TEXT, " +
-                            CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_DATE + " TEXT " +
+                            CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_DATE + " TEXT, " +
+                            CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_EDITABLE + " INTEGER " +
                     ");");
 
         } catch (Exception e)
@@ -104,11 +106,11 @@ public class DBHelper extends SQLiteOpenHelper
 
     public synchronized void closeDatabase()
     {
-        databaseOpenRefCount--;
-        if (databaseOpenRefCount == 0)
-        {
-            database.close();
-        }
+//        databaseOpenRefCount--;
+//        if (databaseOpenRefCount == 0)
+//        {
+//            database.close();
+//        }
     }
 
     public void clearDatabase(final String which_table)
@@ -122,13 +124,12 @@ public class DBHelper extends SQLiteOpenHelper
        /**
      * addInfo
      *
-     * @param name
      * @param version
      * @param startDate
      * @param endDate
      * @return
      */
-    public long addInfo(final String name, final int version, final String startDate, final String endDate)
+    public long addInfo(final int version, final String startDate, final String endDate)
     {
         SQLiteDatabase db = this.openDatabase();
         long info_id = -1L;
@@ -136,12 +137,14 @@ public class DBHelper extends SQLiteOpenHelper
 
         //force replace
         values.put(CalendarContract.CalendarInfoEntry._ID, 0);
-        values.put(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_NPO_NAME, name);
+        values.put(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_NPO_NAME, "das");
         values.put( CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_CALENDAR_VERSION, version);
         values.put(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_START_DATE, startDate);
         values.put(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_END_DATE, endDate);
 
         info_id = db.insertWithOnConflict(CalendarContract.INFO_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+
+        closeDatabase();
 
         return info_id;
     }
@@ -160,11 +163,16 @@ public class DBHelper extends SQLiteOpenHelper
         {
             String dateString = yacalendar.formatDate(note.getDate(), Constants.DATABASE_SHORT_DATE_FORMAT);
 
+            //escape single quotes in text
+            String text = note.getText();
+            text = text.replace("'", "''");
+
             //does it already exist in the database
             Cursor c =  db.query(CalendarContract.NOTE_TABLE_NAME, null,
                     CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_PRIORITY + " = '"+ note.getPriority() + "' and " +
-                    CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_TEXT + " = '"+ note.getText() + "' and " +
-                    CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_DATE + " = '"+ dateString + "'",
+                    CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_TEXT + " = '"+ text + "' and " +
+                    CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_DATE + " = '"+ dateString + "' and " +
+                    CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_EDITABLE + " = '"+ (note.isEditable()?1:0) + "'",
                     null, null, null, null);
 
             if(c.getCount() > 0)
@@ -174,14 +182,18 @@ public class DBHelper extends SQLiteOpenHelper
                 c.close();
                 return note_id;
             }
+
             ContentValues values = new ContentValues();
 
             values.put(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_PRIORITY, note.getPriority());
-            values.put(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_TEXT, note.getText());
+            values.put(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_TEXT, text);
             values.put(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_DATE, dateString);
+            values.put(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_EDITABLE, (note.isEditable()?1:0));
 
 
             note_id = db.insertWithOnConflict(CalendarContract.NOTE_TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+
+            closeDatabase();
 
             return note_id;
         }
@@ -189,6 +201,46 @@ public class DBHelper extends SQLiteOpenHelper
         {
             return -1L;
         }
+    }
+
+    /**
+     * updateNotes
+     *
+     * @param notes
+     */
+    public void updateNotes(List<Note> notes)
+    {
+        if(notes != null && notes.size() > 0)
+        {
+            for(Note note : notes)
+            {
+                updateNote(note);
+            }
+        }
+    }
+
+    public void updateNote(Note note)
+    {
+        SQLiteDatabase db = this.openDatabase();
+
+        String dateString = yacalendar.formatDate(note.getDate(), Constants.DATABASE_SHORT_DATE_FORMAT);
+
+        //escape single quotes in text
+        String text = note.getText();
+        text = text.replace("'", "''");
+
+        ContentValues values = new ContentValues();
+
+        values.put(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_ID, note.getId());
+        values.put(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_PRIORITY, note.getPriority());
+        values.put(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_TEXT, text);
+        values.put(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_DATE, dateString);
+        values.put(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_EDITABLE, (note.isEditable()?1:0));
+
+
+        db.replace(CalendarContract.NOTE_TABLE_NAME, null, values);
+
+        closeDatabase();
     }
 
     /**
@@ -216,9 +268,13 @@ public class DBHelper extends SQLiteOpenHelper
         String text = c.getString(c.getColumnIndex(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_TEXT));
         String dateString = c.getString(c.getColumnIndex(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_DATE));
         date.setTime(yacalendar.parseDate(dateString, Constants.DATABASE_SHORT_DATE_FORMAT));
-        Note note = new Note(_id, date, priority, text);
+        int editable = c.getInt(c.getColumnIndex(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_EDITABLE));
+        Note note = new Note(_id, date, priority, text, (editable==1)?true:false);
 
         c.close();
+
+        closeDatabase();
+
         return note;
     }
 
@@ -241,12 +297,16 @@ public class DBHelper extends SQLiteOpenHelper
                 String text = c.getString(c.getColumnIndex(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_TEXT));
                 String dateString = c.getString(c.getColumnIndex(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_DATE));
                 date.setTime(yacalendar.parseDate(dateString, Constants.DATABASE_SHORT_DATE_FORMAT));
+                int editable = c.getInt(c.getColumnIndex(CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_EDITABLE));
 
-                Note note = new Note(_id, date, priority, text);
+                Note note = new Note(_id, date, priority, text, (editable==1)?true:false);
                 notes.put(date.get(Calendar.DAY_OF_MONTH), note);
             } while (c.moveToNext());
         }
         c.close();
+
+        closeDatabase();
+
         return notes;
     }
 

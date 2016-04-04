@@ -23,6 +23,7 @@ public class CalendarContract
         public final static String COLUMN_NAME_NOTE_PRIORITY = "priority";
         public final static String COLUMN_NAME_NOTE_TEXT = "note";
         public final static String COLUMN_NAME_NOTE_DATE = "date";
+        public final static String COLUMN_NAME_NOTE_EDITABLE = "editable";
 
     }
 

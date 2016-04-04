@@ -23,6 +23,7 @@ public class CalendarInfo
     public int version;
     public Calendar startDate = null;
     public Calendar endDate = null;
+    public int numMonths = 0;
     // Notes (for each day of the any year).
     private TreeMap<Calendar, Note> notes = null;
     private Bitmap splashImage = null;
@@ -34,75 +35,18 @@ public class CalendarInfo
         this.endDate = Calendar.getInstance();
         this.monthImage = new ArrayList<Bitmap>();
         this.version = version;
-        this.startDate.setTime(yacalendar.parseDate(startDate, Constants.INTERNAL_SHORT_DATE_FORMAT));
-        this.endDate.setTime(yacalendar.parseDate(endDate, Constants.INTERNAL_SHORT_DATE_FORMAT));
+        this.startDate.setTime(yacalendar.parseDate(startDate, Constants.SHORT_DATE_FORMAT));
+        this.endDate.setTime(yacalendar.parseDate(endDate, Constants.SHORT_DATE_FORMAT));
         Log.d(TAG, "startDate = " + this.startDate.toString());
         Log.d(TAG, "endDate = " + this.endDate.toString());
+
         int diffYear = this.endDate.get(Calendar.YEAR) - this.startDate.get(Calendar.YEAR);
         //month is 0 based, full year is 11
-        int diffMonth = diffYear * 12 + this.endDate.get(Calendar.MONTH) - this.startDate.get(Calendar.MONTH);
+        numMonths = diffYear * 12 + this.endDate.get(Calendar.MONTH) - this.startDate.get(Calendar.MONTH);
         //fill the monthImage array with null's so we can add the images in any order
-        for(int index = 0; index < diffMonth+1; index++)
+        for(int index = 0; index < numMonths+1; index++)
         {
             monthImage.add(null);
-        }
-
-        notes = new TreeMap<Calendar, Note>(new Comparator<Calendar>()
-        {
-            public int compare(Calendar lhs, Calendar rhs)
-            {
-                if (lhs.before(rhs))
-                {
-                    return -1;
-                } else if (lhs.after(rhs))
-                {
-                    return 1;
-                } else
-                {
-                    return 0;
-                }
-            }
-        });
-    }
-
-    public TreeMap<Calendar, Note> getNotes()
-    {
-        return notes;
-    }
-
-    public void setNotes(TreeMap<Calendar, Note> notes)
-    {
-        this.notes = notes;
-    }
-
-    public Note getNote(final Calendar date)
-    {
-        if (notes != null)
-        {
-            return notes.get(date);
-        } else
-        {
-            return null;
-        }
-    }
-
-    public void setNote(final Note note)
-    {
-        if (note != null)
-        {
-            notes.put(note.getDate(), note);
-        }
-    }
-
-    public final SortedMap<Calendar, Note> getNoteFromTo(final Calendar from, final Calendar to)
-    {
-        if(notes != null && notes.size() > 0)
-        {
-            return notes.subMap(from, to);
-        }
-        else
-        {
-            return null;
         }
     }
 

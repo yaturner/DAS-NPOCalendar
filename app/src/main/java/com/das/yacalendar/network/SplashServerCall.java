@@ -44,12 +44,7 @@ public class SplashServerCall extends BasicAPICall
             {
                 try
                 {
-                    JSONObject obj = new JSONObject(result);
-                    String str = obj.getString("splash");
-                    JSONArray array = new JSONArray(str);
-                    obj = array.getJSONObject(0);
-                    String splashImage = obj.getString("splash");
-                    blob = splashImage.getBytes();
+                    blob = result.getBytes();
                     in = new ByteArrayInputStream(blob);
                     out = new ByteArrayOutputStream();
                     new UUDecode(in, out);
@@ -58,10 +53,12 @@ public class SplashServerCall extends BasicAPICall
                     main.msgHandler.sendMessage(msg);
                     out.close();
 
-                } catch (JSONException e)
-                {
-                    e.printStackTrace();
-                } catch (IOException e)
+               }
+// catch (JSONException e)
+//                {
+//                    e.printStackTrace();
+//                }
+                catch (IOException e)
                 {
                     e.printStackTrace();
                 }

@@ -41,6 +41,7 @@ public class Note implements Serializable
     private Calendar date;
     private int priority;
     private String text;
+    private boolean editable;
 
     private String dateString;
 
@@ -53,7 +54,7 @@ public class Note implements Serializable
         priority = Constants.NOTE_PRIORITY_NONE;
     }
 
-    public Note(final Calendar date, final int priority, final String text)
+    public Note(final Calendar date, final int priority, final String text, final boolean editable)
     {
         this.id = -1;
         this.date = date;
@@ -61,7 +62,7 @@ public class Note implements Serializable
         this.text = text;
     }
 
-    public Note(final long id, final Calendar date, final int priority, final String text)
+    public Note(final long id, final Calendar date, final int priority, final String text, final boolean editable)
     {
         this.id = id;
         this.date = date;
@@ -128,5 +129,27 @@ public class Note implements Serializable
     {
         return text;
     }
+
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public boolean isEditable() {
+        return editable;
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+    }
+
 
 }

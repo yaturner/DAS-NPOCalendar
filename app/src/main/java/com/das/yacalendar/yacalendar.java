@@ -82,9 +82,13 @@ import com.das.yacalendar.listeners.CalendarGestureListener;
 import com.das.yacalendar.listeners.MonthNameTouchListener;
 import com.das.yacalendar.listeners.SlideInAnimationListener;
 import com.das.yacalendar.listeners.SlideOutAnimationListener;
+import com.das.yacalendar.network.InfoServerCall;
+import com.das.yacalendar.network.MonthServerCall;
+import com.das.yacalendar.network.NotesServerCall;
 import com.das.yacalendar.network.SplashServerCall;
 import com.das.yacalendar.notes.Note;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -200,7 +204,6 @@ public class yacalendar extends Activity
     private boolean isMainFlipImage = true;
     private CalendarInfo calendarInfo = null;
     private ProgressDialog progressDialog = null;
-    private View mainView = null;
     private TypedArray monthBackground;
     public Handler msgHandler = null;
 
@@ -233,8 +236,13 @@ public class yacalendar extends Activity
         //////////requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.main);
 
-        mainView = findViewById( R.id.main_screen );
-        mainView.setVisibility(View.INVISIBLE);
+        mMainScreen = (RelativeLayout) findViewById(R.id.main_screen);
+        mHelpScreen = (RelativeLayout) findViewById(R.id.help_screens);
+        mMonthView1 = (RelativeLayout) findViewById(R.id.MonthView1);
+        mMonthView2 = (RelativeLayout) findViewById(R.id.MonthView2);
+        mDayViewScreen = (RelativeLayout) findViewById(R.id.day_view_screen);
+
+        mMainScreen.setVisibility(View.INVISIBLE);
 
         msgHandler = new Handler()
         {
@@ -243,16 +251,55 @@ public class yacalendar extends Activity
             {
                 byte[] blob = null;
                 String urlString = null;
-
+                Bitmap bitmap = null;
                 switch (msg.what)
                 {
                     case kMessageInfo:
-                        //CalendarInfo will parse the info and hold all of the dates, notes, etc.
                         calendarInfo = (CalendarInfo) msg.obj;
-                        //Get the splash image
-                        urlString = Constants.SERVER_ADDRESS + "/getSplash/npo/das";
-                        SplashServerCall task = new SplashServerCall(singleton);
-                        task.execute(urlString);
+                        //Get the calendar info, if the versions match, skip the rest
+                        //get the current version and create the database if needed
+                        dbHelper = new DBHelper(singleton);
+                        SQLiteDatabase db = dbHelper.getReadableDatabase();
+                        Cursor c = null;
+                        try {
+                            c = db.query(CalendarContract.INFO_TABLE_NAME, null, null, null, null, null, null);
+                        }
+                        catch(Exception e)
+                        {
+                            c  = null;
+                        }
+
+                        if(c != null && c.getCount() > 0) {
+                            c.moveToFirst();
+                            currentCalendarVersion = c.getInt(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_CALENDAR_VERSION));
+                        }
+                        else {
+                            currentCalendarVersion = -1;
+                        }
+
+                        if (currentCalendarVersion == calendarInfo.version) {
+                            mStartDate = Calendar.getInstance();
+                            mEndDate = Calendar.getInstance();
+                            String startDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_START_DATE));
+                            mStartDate.setTime(parseDate(startDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
+                            String endDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_END_DATE));
+                            mEndDate.setTime(parseDate(endDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
+                            InitializeData();
+                            InitializeGUI();
+                        }
+                        else {
+                            mStartDate = calendarInfo.startDate;
+                            mEndDate = calendarInfo.endDate;
+
+                            dbHelper.addInfo(calendarInfo.version,
+                                    formatDate(mStartDate, Constants.DATABASE_SHORT_DATE_FORMAT),
+                                    formatDate(mEndDate, Constants.DATABASE_SHORT_DATE_FORMAT));
+
+                            //Get the splash image
+                            urlString = Constants.SERVER_ADDRESS + "/getSplash/npo/das";
+                            SplashServerCall taskSplash = new SplashServerCall(singleton);
+                            taskSplash.execute(urlString);
+                        }
                         break;
                     case kMessageNotes:
                         ArrayList<Note> notes = (ArrayList<Note>) msg.obj;
@@ -260,30 +307,47 @@ public class yacalendar extends Activity
                         {
                             for (Note aNote : notes)
                             {
-                                calendarInfo.setNote(aNote);
+                                long id = dbHelper.addNote(aNote);
+                                aNote.setId(id);
                             }
                         }
+                        InitializeData();
+                        InitializeGUI();
                         break;
                     case kMessageSplashImage:
                         blob = (byte[])msg.obj;
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(blob, 0, blob.length);
+                        bitmap = BitmapFactory.decodeByteArray(blob, 0, blob.length);
                         splashImage = new BitmapDrawable(getResources(), bitmap);
                         calendarInfo.setSplashImage(bitmap);
 
                         View splash = (View)findViewById( R.id.splash_screen );
-                        splash.setVisibility( View.VISIBLE );
+                        splash.setVisibility(View.VISIBLE);
                         splash.setBackground(splashImage);
                         splash.bringToFront();
                         splash.invalidate();
-                        InitializeGUI();
-                        hideProgressDialog();
+                        //InitializeGUI();
+                        //hideProgressDialog();
+                        urlString = Constants.SERVER_ADDRESS + "/getMonth/npo/das/month/1";
+                        MonthServerCall taskMonth = new MonthServerCall(singleton, 1);
+                        taskMonth.execute(urlString);
                         break;
                     case kMessageMonthImage:
                         int monthNo = msg.arg1;
-                        blob = (byte[])msg.obj;
-                        bitmap = BitmapFactory.decodeByteArray(blob, 0, blob.length);
+                        bitmap = (Bitmap)msg.obj;
                         calendarInfo.addMonthImage(monthNo, bitmap);
-
+                        //fill in all the months
+                        if(monthNo < calendarInfo.numMonths)
+                        {
+                            urlString = Constants.SERVER_ADDRESS + "/getMonth/npo/das/month/"+(monthNo+1);
+                            taskMonth = new MonthServerCall(singleton, monthNo+1);
+                            taskMonth.execute(urlString);
+                        }
+                        else
+                        {
+                            urlString = Constants.SERVER_ADDRESS + "/getCalendar/npo/das";
+                            NotesServerCall taskNotes = new NotesServerCall(singleton);
+                            taskNotes.execute(urlString);
+                        }
                         break;
                 }
             }
@@ -309,28 +373,28 @@ public class yacalendar extends Activity
             c  = null;
         }
 
-        if(c != null && c.getCount() > 0)
-        {
-            c.moveToFirst();
-            currentCalendarVersion = c.getInt(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_CALENDAR_VERSION));
-            mStartDate = Calendar.getInstance();
-            mEndDate = Calendar.getInstance();
-            String startDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_START_DATE));
-            mStartDate.setTime(parseDate(startDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
-            String endDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_END_DATE));
-            mEndDate.setTime(parseDate(endDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
-            calendarInfo = new CalendarInfo(currentCalendarVersion, startDateString, endDateString);
-        }
-        else
-        {
+//        if(c != null && c.getCount() > 0)
+//        {
+//            c.moveToFirst();
+//            currentCalendarVersion = c.getInt(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_CALENDAR_VERSION));
+//            mStartDate = Calendar.getInstance();
+//            mEndDate = Calendar.getInstance();
+//            String startDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_START_DATE));
+//            mStartDate.setTime(parseDate(startDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
+//            String endDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_END_DATE));
+//            mEndDate.setTime(parseDate(endDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
+//            calendarInfo = new CalendarInfo(currentCalendarVersion, startDateString, endDateString);
+//        }
+//        else
+//        {
             //TODO get this info from the server
-//            urlString = Constants.SERVER_ADDRESS + "/getInfo/npo/das";
-//            new InfoServerCall(this).execute(urlString);
-        }
+            urlString = Constants.SERVER_ADDRESS + "/getInfo/npo/das";
+            new InfoServerCall(this).execute(urlString);
+//        }
 
         //InitializeData() here, InitializeGUI() is called after the calendar info is retrieved
-        InitializeData();
-        InitializeGUI();
+        //InitializeData();
+        //InitializeGUI();
 /*
         //Get the calendar notes
         urlString = Constants.SERVER_ADDRESS + "/getCalendar/npo/das";
@@ -362,170 +426,170 @@ public class yacalendar extends Activity
 
         monthBackground = getResources().obtainTypedArray(R.array.MonthBackgroundIds);
 
-        if(currentCalendarVersion == 1)
-        {
-            return;
-        }
-
-        File root;
-        File fin;
-        FileInputStream in;
-        FileOutputStream out;
-        int numNotes = 0;
-
-        try
-        {
-            root = Environment.getExternalStorageDirectory();
-            if( root.canRead() )
-            {
-                fin = new File( root, SAVEFILENAME );
-            }
-            else
-            {
-                // ShowErrorDialog(
-                // "Could not access Saved/Restore data, The saved simulation will not be restored."
-                // );
-                throw new IOException();
-            }
-        }
-        catch ( IOException e )
-        {
-            SetDefaultValuesAndInitializeGUI();
-            return;
-        }
-
-        if( !fin.exists() )
-        {
-            InputStream ins = getResources().openRawResource( R.raw.fundraiser );
-
-            int size;
-            try
-            {
-                size = ins.available();
-                if( size <= 0 )
-                {
-                    throw new IOException();
-                }
-
-                // Read the entire resource into a local byte buffer.
-                byte[] buffer = new byte[size];
-                ins.read( buffer );
-                ins.close();
-                if( root.canWrite() )
-                {
-                    File fout = new File( root, SAVEFILENAME );
-                    out = new FileOutputStream( fout );
-                    out.write( buffer );
-                    out.flush();
-                    out.close();
-                }
-            }
-            catch ( IOException e2 )
-            {
-                SetDefaultValuesAndInitializeGUI();
-                return;
-            }
-        }
-
-        // Read using DataInputStream.
-        try
-        {
-            in = new FileInputStream( fin );
-        }
-        catch ( FileNotFoundException e2 )
-        {
-            SetDefaultValuesAndInitializeGUI();
-            return;
-        }
-
-        DataInputStream obj_in = null;
-        obj_in = new DataInputStream( in );
-
-        try
-        {
-            byte[] dateBuffer = new byte[8]; // mmddyyyy
-            byte[] b = null;
-            int red = -1;
-            int len = -1;
-
-            if( mStartDate == null )
-            {
-                mStartDate = Calendar.getInstance();
-                mEndDate = Calendar.getInstance();
-            }
-
-            /**
-             * Start reading the database
-             */
-
-            //version string for the calendar, already checked in isDatabaseHealthy
-            //			len = obj_in.readInt();
-            //			b = new byte[len];
-            //			red = obj_in.read( b, 0, len );
-
-            //Start Date for the calendar
-            len = obj_in.readInt();
-            b = new byte[len];
-            red = obj_in.read( b, 0, len );
-            mStartDate.setTime(parseDate( new String(b), Constants.INTERNAL_SHORT_DATE_FORMAT));
-
-            //End date for the calendar
-            len = obj_in.readInt();
-            b = new byte[len];
-            red = obj_in.read( b, 0, len );
-            mEndDate.setTime(parseDate(new String(b), Constants.INTERNAL_SHORT_DATE_FORMAT));
-
-            //Current state info
-            mCurrentDay = obj_in.readInt();
-            Log.d( TAG, "Restore\\\\mCurrentDay = " + mCurrentDay );
-            mCurrentMonthIndex = obj_in.readInt();
-            Log.d( TAG, "Restore\\\\mCurrentMonthIndex = " + mCurrentMonthIndex );
-            mCurrentYear = obj_in.readInt();
-            Log.d( TAG, "Restore\\\\mCurrentYear = " + mCurrentYear );
-            numNotes = obj_in.readInt();
-            Log.d( TAG, "Restore\\\\numNotes = " + numNotes );
-        }
-        catch ( IOException e1 )
-        {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-
-        dbHelper.addInfo("test", 1,
-                formatDate(mStartDate, Constants.DATABASE_SHORT_DATE_FORMAT),
-                formatDate(mEndDate, Constants.DATABASE_SHORT_DATE_FORMAT));
+//        if(currentCalendarVersion == 1)
+//        {
+//            return;
+//        }
+//
+//        File root;
+//        File fin;
+//        FileInputStream in;
+//        FileOutputStream out;
+//        int numNotes = 0;
+//
+//        try
+//        {
+//            root = Environment.getExternalStorageDirectory();
+//            if( root.canRead() )
+//            {
+//                fin = new File( root, SAVEFILENAME );
+//            }
+//            else
+//            {
+//                // ShowErrorDialog(
+//                // "Could not access Saved/Restore data, The saved simulation will not be restored."
+//                // );
+//                throw new IOException();
+//            }
+//        }
+//        catch ( IOException e )
+//        {
+//            SetDefaultValuesAndInitializeGUI();
+//            return;
+//        }
+//
+//        if( !fin.exists() )
+//        {
+//            InputStream ins = getResources().openRawResource( R.raw.fundraiser );
+//
+//            int size;
+//            try
+//            {
+//                size = ins.available();
+//                if( size <= 0 )
+//                {
+//                    throw new IOException();
+//                }
+//
+//                // Read the entire resource into a local byte buffer.
+//                byte[] buffer = new byte[size];
+//                ins.read( buffer );
+//                ins.close();
+//                if( root.canWrite() )
+//                {
+//                    File fout = new File( root, SAVEFILENAME );
+//                    out = new FileOutputStream( fout );
+//                    out.write( buffer );
+//                    out.flush();
+//                    out.close();
+//                }
+//            }
+//            catch ( IOException e2 )
+//            {
+//                SetDefaultValuesAndInitializeGUI();
+//                return;
+//            }
+//        }
+//
+//        // Read using DataInputStream.
+//        try
+//        {
+//            in = new FileInputStream( fin );
+//        }
+//        catch ( FileNotFoundException e2 )
+//        {
+//            SetDefaultValuesAndInitializeGUI();
+//            return;
+//        }
+//
+//        DataInputStream obj_in = null;
+//        obj_in = new DataInputStream( in );
+//
+//        try
+//        {
+//            byte[] dateBuffer = new byte[8]; // mmddyyyy
+//            byte[] b = null;
+//            int red = -1;
+//            int len = -1;
+//
+//            if( mStartDate == null )
+//            {
+//                mStartDate = Calendar.getInstance();
+//                mEndDate = Calendar.getInstance();
+//            }
+//
+//            /**
+//             * Start reading the database
+//             */
+//
+//            //version string for the calendar, already checked in isDatabaseHealthy
+//            //			len = obj_in.readInt();
+//            //			b = new byte[len];
+//            //			red = obj_in.read( b, 0, len );
+//
+//            //Start Date for the calendar
+//            len = obj_in.readInt();
+//            b = new byte[len];
+//            red = obj_in.read( b, 0, len );
+//            mStartDate.setTime(parseDate( new String(b), Constants.INTERNAL_SHORT_DATE_FORMAT));
+//
+//            //End date for the calendar
+//            len = obj_in.readInt();
+//            b = new byte[len];
+//            red = obj_in.read( b, 0, len );
+//            mEndDate.setTime(parseDate(new String(b), Constants.INTERNAL_SHORT_DATE_FORMAT));
+//
+//            //Current state info
+//            mCurrentDay = obj_in.readInt();
+//            Log.d( TAG, "Restore\\\\mCurrentDay = " + mCurrentDay );
+//            mCurrentMonthIndex = obj_in.readInt();
+//            Log.d( TAG, "Restore\\\\mCurrentMonthIndex = " + mCurrentMonthIndex );
+//            mCurrentYear = obj_in.readInt();
+//            Log.d( TAG, "Restore\\\\mCurrentYear = " + mCurrentYear );
+//            numNotes = obj_in.readInt();
+//            Log.d( TAG, "Restore\\\\numNotes = " + numNotes );
+//        }
+//        catch ( IOException e1 )
+//        {
+//            // TODO Auto-generated catch block
+//            e1.printStackTrace();
+//        }
+//
+//        dbHelper.addInfo("test", 1,
+//                formatDate(mStartDate, Constants.DATABASE_SHORT_DATE_FORMAT),
+//                formatDate(mEndDate, Constants.DATABASE_SHORT_DATE_FORMAT));
 
         //Set the calendar
         mCalendar.set( mCurrentYear, mCurrentMonthIndex, mCurrentDay );
 
-        //Notes
-        for( int iNote = 0; iNote < numNotes; iNote++ )
-        {
-            Note note = new Note();
-            try
-            {
-                note.Restore( obj_in );
-            }
-            catch ( IOException e )
-            {
-                ReportIOException( e );
-                e.printStackTrace();
-            }
-            dbHelper.addNote( note );
-        }
-
-        try
-        {
-            in.close();
-        }
-        catch ( IOException e )
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        // release it
-        in = null;
+//        //Notes
+//        for( int iNote = 0; iNote < numNotes; iNote++ )
+//        {
+//            Note note = new Note();
+//            try
+//            {
+//                note.Restore( obj_in );
+//            }
+//            catch ( IOException e )
+//            {
+//                ReportIOException( e );
+//                e.printStackTrace();
+//            }
+//            dbHelper.addNote( note );
+//        }
+//
+//        try
+//        {
+//            in.close();
+//        }
+//        catch ( IOException e )
+//        {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//
+//        // release it
+//        in = null;
     }
 
     /**
@@ -562,11 +626,6 @@ public class yacalendar extends Activity
      */
     private void InitializeGUI()
     {
-        mMainScreen = (RelativeLayout) findViewById(R.id.main_screen);
-        mHelpScreen = (RelativeLayout) findViewById(R.id.help_screens);
-        mMonthView1 = (RelativeLayout) findViewById(R.id.MonthView1);
-        mMonthView2 = (RelativeLayout) findViewById(R.id.MonthView2);
-        mDayViewScreen = (RelativeLayout) findViewById(R.id.day_view_screen);
 
         //touch listener for direction arrows, must be before the MonthViewFlipper
         if (mMonthNameTouchListener == null)
@@ -692,8 +751,8 @@ public class yacalendar extends Activity
 
         View splash = (View)findViewById( R.id.splash_screen );
 
-        mainView.setVisibility( View.VISIBLE );
-        mainView.bringToFront();
+        mMainScreen.setVisibility(View.VISIBLE);
+        mMainScreen.bringToFront();
         splash.setVisibility(View.GONE);
 
         UpdateFromPrefreneces();
@@ -1388,9 +1447,10 @@ public class yacalendar extends Activity
     public boolean onOptionsItemSelected(MenuItem item)
     {
         Note note = null;
+        List<Note> notes = null;
         if (mCurrentDateBtn != null)
         {
-            note = (Note) mCurrentDateBtn.getTag();
+            notes = (List<Note>) mCurrentDateBtn.getTag();
         }
         String key = generateKeyFromCalendar(mCalendar);
 
@@ -1447,38 +1507,26 @@ public class yacalendar extends Activity
                 HideDayView();
                 return true;
             case MENU_DONE:
-                String noteText = ComposeNoteStringFromArray();
-
-                if (note == null)
+                ArrayList<String> noteText = getNotesFromAdapter();
+                int index = 0;
+                for(String text : noteText)
                 {
-                    if (noteText.length() > 0)
-                    {
-/*
-                        note = new Note(key, 1, noteText);
-                        mNotes.put(key, note);
-                        mCurrentDateBtn.setTag(note);
-*/
+                    if (text.length() > 0) {
+                        note = notes.get(index);
+                        note.setText(text);
                     }
-                } else
-                {
-/*
-                    if (noteText.length() > 0)
+                    else
                     {
-                        note.mText = noteText;
-                        mNotes.put(key, note);
-                    } else
-                    {
-                        mCurrentDateBtn.setTag(null);
-                        if (mNotes.containsKey(key))
-                        {
-                            mNotes.remove(key);
-                        }
+                        notes.remove(index);
                     }
-*/
+                    index++;
                 }
+                mCurrentDateBtn.setTag(notes);
 
                 HideDayView();
-                UpdateFooter((Note) mCurrentDateBtn.getTag());
+                UpdateFooter(notes);
+                dbHelper.updateNotes(notes);
+                /////////////TODO update server or save for later if not network connection
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -1530,34 +1578,45 @@ public class yacalendar extends Activity
         LinearLayout dayView = (LinearLayout) findViewById(R.id.day_view);
 
         //if the dayView screen is visible, then this menu item is monthView not dayView
-        String title = getResources().getString(mMonthNameStringId[mCalendar.get(Calendar.MONTH)]) + " "
-                + mCalendar.get(Calendar.DATE) + ", " + mCalendar.get(Calendar.YEAR);
+        String title = getResources().getString((R.string.RemindersFor)) +
+                " " +
+                getResources().getString(mMonthNameStringId[mCalendar.get(Calendar.MONTH)]) +
+                " " +
+                mCalendar.get(Calendar.DATE) +
+                ", " +
+                mCalendar.get(Calendar.YEAR);
         TextView tv = (TextView) dayView.findViewById(R.id.day_view_title);
         tv.setText(title);
 
-        mCurrentNotesList = ParseNoteStingIntoArray((Note) mCurrentDateBtn.getTag());
+        mCurrentNotesList = new ArrayList<>();
+        List<Note> notes = (List<Note>)mCurrentDateBtn.getTag();
+        for(Note note : notes)
+        {
+            mCurrentNotesList.add(note.getText());
+        }
 
-        int resID = R.layout.notelist_item;
+        if(mCurrentNotesList != null && mCurrentNotesList.size() > 0) {
+            int resID = R.layout.notelist_item;
 
-        mNotesListItemAdapter = new ArrayAdapter<String>(this, resID, mCurrentNotesList);
-        ListView lv = (ListView) dayView.findViewById(R.id.day_listview);
-        lv.setAdapter(mNotesListItemAdapter);
-        lv.setDividerHeight(4);
-        lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        lv.setItemsCanFocus(true);
-        registerForContextMenu(lv);
-        lv.setOnItemClickListener(new OnItemClickListener() {
+            mNotesListItemAdapter = new ArrayAdapter<String>(this, resID, mCurrentNotesList);
+            ListView lv = (ListView) dayView.findViewById(R.id.day_listview);
+            lv.setAdapter(mNotesListItemAdapter);
+            lv.setDividerHeight(4);
+            lv.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            lv.setItemsCanFocus(true);
+            registerForContextMenu(lv);
+            lv.setOnItemClickListener(new OnItemClickListener() {
 
-            public void onItemClick(AdapterView<?> arg0, View v, int position, long id) {
-                mNoteListSelectedItemIndex = position;
-                v.performLongClick();
-            }
-        });
+                public void onItemClick(AdapterView<?> arg0, View v, int position, long id) {
+                    mNoteListSelectedItemIndex = position;
+                    v.performLongClick();
+                }
+            });
 
-        mMainScreen.setVisibility(View.GONE);
-        mDayViewScreen.setVisibility(View.VISIBLE);
-        mDayViewScreen.bringToFront();
-
+            mMainScreen.setVisibility(View.GONE);
+            mDayViewScreen.setVisibility(View.VISIBLE);
+            mDayViewScreen.bringToFront();
+        }
     }
 
     private void HideDayView()
@@ -1624,7 +1683,7 @@ public class yacalendar extends Activity
         return buffer.toString();
     }
 
-    private String ComposeNoteStringFromArray()
+    private ArrayList<String> getNotesFromAdapter()
     {
         ListView lv = (ListView) findViewById(R.id.day_listview);
         ArrayList<String> list = new ArrayList<String>();
@@ -1640,7 +1699,7 @@ public class yacalendar extends Activity
             }
         }
 
-        return join(list, "\n");
+        return list;
     }
 
     /**
@@ -1801,7 +1860,7 @@ public class yacalendar extends Activity
         mCurrentMonthIndex = cal.get(Calendar.MONTH);
         mCurrentYear = cal.get(Calendar.YEAR);
 */
-        calendarInfo.getNotes().clear();
+        //////////////TODO calendarInfo.getNotes().clear();
         InitializeGUI();
     }
 
