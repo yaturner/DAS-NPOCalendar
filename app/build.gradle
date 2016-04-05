@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-
 android {
     compileSdkVersion 21
     buildToolsVersion "22.0.0"
@@ -9,8 +8,8 @@ android {
         minSdkVersion 21
         targetSdkVersion 21
         compileOptions {
-            sourceCompatibility JavaVersion.VERSION_1_5
-            targetCompatibility JavaVersion.VERSION_1_5
+            sourceCompatibility JavaVersion.VERSION_1_7
+            targetCompatibility JavaVersion.VERSION_1_7
         }
     }
 
@@ -34,3 +33,7 @@ android {
     }
 }
 
+dependencies {
+    compile 'com.google.guava:guava:19.0'
+    compile 'com.android.support:support-v4:24.0.0-alpha1'
+}

@@ -22,6 +22,9 @@ package com.das.yacalendar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -80,6 +83,7 @@ import com.das.yacalendar.calendar.CalendarInfo;
 import com.das.yacalendar.database.CalendarContract;
 import com.das.yacalendar.database.DBHelper;
 import com.das.yacalendar.database.DatabaseVersion;
+import com.das.yacalendar.dialog.AddNoteDialog;
 import com.das.yacalendar.listeners.CalendarGestureListener;
 import com.das.yacalendar.listeners.MonthNameTouchListener;
 import com.das.yacalendar.listeners.SlideInAnimationListener;
@@ -106,7 +110,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-public class yacalendar extends Activity
+public class yacalendar extends FragmentActivity
 {
     private static yacalendar singleton;
 
@@ -1547,6 +1551,7 @@ public class yacalendar extends Activity
         mNotesListItemAdapter.notifyDataSetChanged();
         mNoteListSelectedItemIndex = mNotesListItemAdapter.getCount() - 1;
 
+        showAddNoteDialog();
         //If the this is the first time this dialog is shown, onCreateDialog will
         // handle initializing the values, other wise we do it here
 //                if (mEditNoteDialog != null)
@@ -1979,6 +1984,12 @@ public class yacalendar extends Activity
         {
             UpdateFooter((List<Note>) mCurrentDateBtn.getTag());
         }
+    }
+
+    private void showAddNoteDialog() {
+        FragmentManager fm = getSupportFragmentManager();
+        AddNoteDialog editNameDialog = new AddNoteDialog();
+        editNameDialog.show(fm, "fragment_add_note");
     }
 
     private void UpdateFooter(final Note note)

@@ -8,10 +8,10 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.das.yacalendar.database.DBHelper;
 import com.das.yacalendar.DateButton;
-import com.das.yacalendar.notes.Note;
 import com.das.yacalendar.R;
+import com.das.yacalendar.database.DBHelper;
+import com.das.yacalendar.notes.Note;
 import com.google.common.collect.ArrayListMultimap;
 
 import java.text.SimpleDateFormat;
