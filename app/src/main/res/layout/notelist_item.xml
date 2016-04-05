@@ -1,8 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.das.yacalendar.NoteListItemView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:fadingEdge="vertical"
-    android:padding="10dp"
-    android:scrollbars="horizontal"
-    android:textColor="@color/notepad_text" />
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.das.yacalendar.NoteListItemView
+        android:id="@+id/noteitem_text"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:fadingEdge="vertical"
+        android:padding="10dp"
+        android:scrollbars="horizontal"
+        android:textColor="@color/notepad_text" />
+
+    <ImageButton
+        android:id="@+id/noteitem_deleteBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:background="@android:drawable/ic_delete" />
+</RelativeLayout>

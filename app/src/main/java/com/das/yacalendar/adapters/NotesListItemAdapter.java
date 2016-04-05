@@ -5,7 +5,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 
+import com.das.yacalendar.NoteListItemView;
 import com.das.yacalendar.R;
 import com.das.yacalendar.notes.Note;
 
@@ -25,6 +27,10 @@ public class NotesListItemAdapter extends ArrayAdapter {
 
     public NotesListItemAdapter(Context context, int resId, List<Note> objects) {
         super(context, resId, objects);
+        if(notes == null)
+        {
+            notes = new ArrayList<>();
+        }
         this.context = context;
         this.notes.addAll(objects);
         this.resId = resId;
@@ -52,6 +58,11 @@ public class NotesListItemAdapter extends ArrayAdapter {
             row = inflater.inflate(resId, parent, false);
         }
 
+        Note note = notes.get(position);
+        NoteListItemView itemView = (NoteListItemView) row.findViewById(R.id.noteitem_text);
+        ImageButton deleteBtn = (ImageButton)row.findViewById(R.id.noteitem_deleteBtn);
+        itemView.setText(note.getText());
+        deleteBtn.setVisibility((note.isEditable())?View.VISIBLE:View.GONE);
         return row;
     }
 }

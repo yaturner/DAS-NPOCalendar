@@ -65,6 +65,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -74,6 +75,7 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 import com.das.yacalendar.adapters.GridCellAdapter;
+import com.das.yacalendar.adapters.NotesListItemAdapter;
 import com.das.yacalendar.calendar.CalendarInfo;
 import com.das.yacalendar.database.CalendarContract;
 import com.das.yacalendar.database.DBHelper;
@@ -182,8 +184,7 @@ public class yacalendar extends Activity
     //Day View
     private int mNoteListSelectedItemIndex = -1;
     private ArrayList<String> mCurrentNotesList = null;
-    //	private NoteListArrayAdapter mNotesListItemAdapter = null;
-    private ArrayAdapter<String> mNotesListItemAdapter = null;
+    private NotesListItemAdapter mNotesListItemAdapter = null;
     //This method handles the direction arrows for the month name
     private OnTouchListener mMonthNameTouchListener = null;
     //This method handles fling gestures for the main screen
@@ -277,7 +278,9 @@ public class yacalendar extends Activity
                             currentCalendarVersion = -1;
                         }
 
-                        if (currentCalendarVersion == calendarInfo.version) {
+                        //If calendarInfo is null then we couldn't connect to the server
+                        //  use the database values if we can
+                        if (calendarInfo == null || currentCalendarVersion == calendarInfo.version) {
                             mStartDate = Calendar.getInstance();
                             mEndDate = Calendar.getInstance();
                             String startDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_START_DATE));
@@ -1479,19 +1482,7 @@ public class yacalendar extends Activity
                 this.finish();
                 return true;
             case MENU_NEW:
-                ListView lv = (ListView) findViewById(R.id.day_listview);
-                mNotesListItemAdapter.add(""); //make this empty so that the hint text will appear
-                mNotesListItemAdapter.notifyDataSetChanged();
-                mNoteListSelectedItemIndex = mNotesListItemAdapter.getCount() - 1;
-
-                //If the this is the first time this dialog is shown, onCreateDialog will
-                // handle initializing the values, other wise we do it here
-                if (mEditNoteDialog != null)
-                {
-                    InitializeEditNoteDialog();
-                }
-                showDialog(DIALOG_EDIT_NOTE);
-
+                composeNewNote();
                 return true;
             case MENU_CLEAR_ALL:
                 mNotesListItemAdapter.clear();
@@ -1507,26 +1498,25 @@ public class yacalendar extends Activity
                 HideDayView();
                 return true;
             case MENU_DONE:
-                ArrayList<String> noteText = getNotesFromAdapter();
-                int index = 0;
-                for(String text : noteText)
-                {
-                    if (text.length() > 0) {
-                        note = notes.get(index);
-                        note.setText(text);
-                    }
-                    else
-                    {
-                        notes.remove(index);
-                    }
-                    index++;
-                }
-                mCurrentDateBtn.setTag(notes);
-
-                HideDayView();
-                UpdateFooter(notes);
-                dbHelper.updateNotes(notes);
-                /////////////TODO update server or save for later if not network connection
+//                ArrayList<String> noteText = getNotesFromAdapter();
+//                int index = 0;
+//                for(String text : noteText)
+//                {
+//                    if (text.length() > 0) {
+//                        note = notes.get(index);
+//                        note.setText(text);
+//                    }
+//                    else
+//                    {
+//                        notes.remove(index);
+//                    }
+//                    index++;
+//                }
+//                mCurrentDateBtn.setTag(notes);
+//
+//                HideDayView();
+//                UpdateFooter(notes);
+//                dbHelper.updateNotes(notes);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -1546,6 +1536,26 @@ public class yacalendar extends Activity
 	/*                          Utility Methods                                    */
 	/*                                                                             */
     /*******************************************************************************/
+
+    /**
+     * composeNewNote
+     */
+    public void composeNewNote() {
+
+        ListView lv = (ListView) findViewById(R.id.day_listview);
+        mNotesListItemAdapter.add(""); //make this empty so that the hint text will appear
+        mNotesListItemAdapter.notifyDataSetChanged();
+        mNoteListSelectedItemIndex = mNotesListItemAdapter.getCount() - 1;
+
+        //If the this is the first time this dialog is shown, onCreateDialog will
+        // handle initializing the values, other wise we do it here
+//                if (mEditNoteDialog != null)
+//                {
+//                    InitializeNewNoteDialog();
+//                }
+//                showDialog(DIALOG_EDIT_NOTE);
+    }
+
     /**
      * InitializeEditNoteDialog
      */
@@ -1568,6 +1578,24 @@ public class yacalendar extends Activity
         int pos = eText.length();
         Selection.setSelection(eText, pos);
 
+    }
+
+    /**
+     * InitializeEditNoteDialog
+     */
+    private void InitializeNewNoteDialog()
+    {
+        //the current selected date is set in BtnDayClickHandler
+        String title = getResources().getString(R.string.Menu_New) + " : "
+                + getResources().getString(mMonthNameStringId[mCalendar.get(Calendar.MONTH)]) + " "
+                + mCalendar.get(Calendar.DATE) + ", " + mCalendar.get(Calendar.YEAR);
+        mEditNoteDialog.setTitle(title);
+
+        //Set the text
+        LinearLayout l = (LinearLayout) mEditNoteView.findViewById(R.id.edit_note);
+        EditText et = (EditText) l.findViewById(R.id.edit_note_text);
+        et.setHint(R.string.Text_Edit_Hint);
+        et.setText("");
     }
 
     /**
@@ -1598,7 +1626,7 @@ public class yacalendar extends Activity
         if(mCurrentNotesList != null && mCurrentNotesList.size() > 0) {
             int resID = R.layout.notelist_item;
 
-            mNotesListItemAdapter = new ArrayAdapter<String>(this, resID, mCurrentNotesList);
+            mNotesListItemAdapter = new NotesListItemAdapter(this, resID, notes);
             ListView lv = (ListView) dayView.findViewById(R.id.day_listview);
             lv.setAdapter(mNotesListItemAdapter);
             lv.setDividerHeight(4);
@@ -1613,6 +1641,13 @@ public class yacalendar extends Activity
                 }
             });
 
+            ImageButton fabBtn = (ImageButton) mDayViewScreen.findViewById(R.id.fab);
+            fabBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
             mMainScreen.setVisibility(View.GONE);
             mDayViewScreen.setVisibility(View.VISIBLE);
             mDayViewScreen.bringToFront();
@@ -1631,7 +1666,7 @@ public class yacalendar extends Activity
      */
     private void DeleteItemFromNotes()
     {
-        String deletedItem = mNotesListItemAdapter.getItem(mNoteListSelectedItemIndex);
+        Note deletedItem = mNotesListItemAdapter.getItem(mNoteListSelectedItemIndex);
 
         //this will delete it from mCurrentNotesList also
         mNotesListItemAdapter.remove(deletedItem);
@@ -1683,19 +1718,20 @@ public class yacalendar extends Activity
         return buffer.toString();
     }
 
-    private ArrayList<String> getNotesFromAdapter()
+    private ArrayList<Note> getNotesFromAdapter()
     {
         ListView lv = (ListView) findViewById(R.id.day_listview);
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<Note> list = new ArrayList<Note>();
 
         for (int item = 0; item < mNotesListItemAdapter.getCount(); item++)
         {
-            String string = mNotesListItemAdapter.getItem(item);
+            Note note = mNotesListItemAdapter.getItem(item);
 
             //don't add empty lines
+            String string = note.getText();
             if (!string.equals("") && !string.equals("- "))
             {
-                list.add(string);
+                list.add(note);
             }
         }
 

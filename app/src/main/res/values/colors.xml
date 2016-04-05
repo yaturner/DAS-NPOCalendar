@@ -7,4 +7,7 @@
     <color name="lightgray">#FF808080</color>
     <color name="lightgray02">#FFC0C0C0</color>
     <color name="orange">#FFFF80F0</color>
+    <color name="sa_green">#1E9618</color>
+    <color name="sa_green_transparent">#801E9618</color>
+    <color name="sa_green_dark">#146310</color>
 </resources>

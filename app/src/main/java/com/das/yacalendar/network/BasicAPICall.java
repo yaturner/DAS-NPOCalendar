@@ -72,11 +72,11 @@ public abstract class BasicAPICall extends AsyncTask<String, Void, Object>
             e.printStackTrace();
         }
 
-        if(response != null && response.length() > 0)
-        {
+//        if(response != null && response.length() > 0)
+//        {
             parseResult(response);
-        }
-
+//        }
+//
         return null;
     }
 

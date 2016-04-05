@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.das.yacalendar"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 21
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_5
@@ -33,6 +33,4 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 }
-dependencies {
-    compile project(path: ':backend', configuration: 'android-endpoints')
-}
+
