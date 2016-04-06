@@ -235,14 +235,7 @@ public class GridCellAdapter extends BaseAdapter  {
         String theday = day_color[0];
         String themonth = day_color[2];
         String theyear = day_color[3];
-//        if ((!eventsPerMonthMap.isEmpty()) && (eventsPerMonthMap != null)) {
-//            if (eventsPerMonthMap.containsKey(theday)) {
-//                num_events_per_day = (TextView) row
-//                        .findViewById(R.id.num_events_per_day);
-//                Integer numEvents = (Integer) eventsPerMonthMap.get(theday);
-//                num_events_per_day.setText(numEvents.toString());
-//            }
-//        }
+// Set the item attributes
 
 // Set the Day GridCell
         gridcell.setText(theday);

@@ -6,9 +6,10 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.widget.EditText;
 import android.widget.TextView;
 
-public class NoteListItemView extends TextView
+public class NoteListItemView extends EditText
 {
 
     private Paint marginPaint;

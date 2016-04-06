@@ -84,6 +84,7 @@ import com.das.yacalendar.database.CalendarContract;
 import com.das.yacalendar.database.DBHelper;
 import com.das.yacalendar.database.DatabaseVersion;
 import com.das.yacalendar.dialog.AddNoteDialog;
+import com.das.yacalendar.dialog.CancelWarningDialog;
 import com.das.yacalendar.listeners.CalendarGestureListener;
 import com.das.yacalendar.listeners.MonthNameTouchListener;
 import com.das.yacalendar.listeners.SlideInAnimationListener;
@@ -217,6 +218,7 @@ public class yacalendar extends FragmentActivity
     public final static int kMessageSplashImage = 103;
     public final static int kMessageMonthImage = 104;
     public final static int kMessageAddNote = 105;
+    public final static int kMessageRemoveNote = 106;
 
     public DBHelper dbHelper = null;
     public int currentCalendarVersion = -1;
@@ -365,6 +367,9 @@ public class yacalendar extends FragmentActivity
                             note.setId(id);
                             mNotesListItemAdapter.notifyDataSetInvalidated();
                             mNotesListItemAdapter.notifyDataSetChanged();
+                            notes = (ArrayList<Note>) mCurrentDateBtn.getTag();
+                            notes.add(note);
+                            mCurrentDateBtn.setTag(notes);
                             UpdateFooter(note);
                         }
                 }
@@ -1128,7 +1133,9 @@ public class yacalendar extends FragmentActivity
             if (mDayViewScreen.getVisibility() == View.VISIBLE)
             {
                 //the exit action is taken in the dialog OnClick method
-                showDialog(DIALOG_WARNING_CANCEL);
+                FragmentManager fm = getSupportFragmentManager();
+                CancelWarningDialog dlg = new CancelWarningDialog();
+                dlg.show(fm, "dialog_cancel_warning");
                 return true;
             } else if (mHelpScreen.getVisibility() == View.VISIBLE)
             {
@@ -1280,70 +1287,6 @@ public class yacalendar extends FragmentActivity
     /**
      * ***************************************************************************
      */
-    @Override
-    protected Dialog onCreateDialog(int id)
-    {
-
-        LayoutInflater factory = LayoutInflater.from(this);
-
-        if (id == DIALOG_EDIT_NOTE)
-        {
-            mEditNoteView = factory.inflate(R.layout.dialog_edit_note, null);
-
-            // This method ONLY gets called once, when the dialog is first created
-            mEditNoteDialog = new AlertDialog.Builder(this).setIcon(android.R.drawable.ic_dialog_info)
-                    .setView(mEditNoteView)
-                    .setPositiveButton(R.string.Menu_Done, new DialogInterface.OnClickListener()
-                    {
-                        public void onClick(DialogInterface dialog, int whichButton)
-                        {
-                            LinearLayout l = (LinearLayout) mEditNoteView.findViewById(R.id.edit_note);
-                            EditText et = (EditText) l.findViewById(R.id.edit_note_text);
-                            String text = et.getText().toString();
-                            int priority = 1;
-
-                            mCurrentNotesList.set(mNoteListSelectedItemIndex, text);
-                            mNotesListItemAdapter.notifyDataSetChanged();
-
-                        }
-                    }).setNegativeButton(R.string.Menu_Cancel, new DialogInterface.OnClickListener()
-                    {
-                        public void onClick(DialogInterface dialog, int whichButton)
-                        {
-
-                        }
-                    }).create();
-
-            InitializeEditNoteDialog();
-
-            return mEditNoteDialog;
-        } else if (id == DIALOG_WARNING_CANCEL)
-        {
-            mWarningCancelView = factory.inflate(R.layout.dialog_warning_cancel, null);
-
-            // This method ONLY gets called once, when the dialog is first created
-            mWarningCancelDialog = new AlertDialog.Builder(this).setIcon(android.R.drawable.ic_dialog_alert)
-                    .setView(mWarningCancelView)
-                    .setPositiveButton(R.string.Menu_Yes, new DialogInterface.OnClickListener()
-                    {
-                        public void onClick(DialogInterface dialog, int whichButton)
-                        {
-                            HideDayView();
-                        }
-                    }).setNegativeButton(R.string.Menu_Cancel, new DialogInterface.OnClickListener()
-                    {
-                        public void onClick(DialogInterface dialog, int whichButton)
-                        {
-
-                        }
-                    }).create();
-
-            return mWarningCancelDialog;
-        }
-
-
-        return null;
-    }
 
     // ==================================================================
     // ShowErrorDialog
@@ -1514,25 +1457,25 @@ public class yacalendar extends FragmentActivity
                 HideDayView();
                 return true;
             case MENU_DONE:
-//                ArrayList<String> noteText = getNotesFromAdapter();
-//                int index = 0;
-//                for(String text : noteText)
-//                {
-//                    if (text.length() > 0) {
-//                        note = notes.get(index);
-//                        note.setText(text);
-//                    }
-//                    else
-//                    {
-//                        notes.remove(index);
-//                    }
-//                    index++;
-//                }
-//                mCurrentDateBtn.setTag(notes);
-//
-//                HideDayView();
-//                UpdateFooter(notes);
-//                dbHelper.updateNotes(notes);
+                ListView lv = (ListView) findViewById(R.id.day_listview);
+                int num = lv.getChildCount();
+                //do this in two passes becuse of the remove
+                for(int index = 0; index < num; index++) {
+                    RelativeLayout v = (RelativeLayout) lv.getChildAt(index);
+                    NoteListItemView iv = (NoteListItemView) v.findViewById(R.id.noteitem_text);
+                    note = notes.get(index);
+                    note.setText(iv.getText().toString());
+                }
+                for(int index = 0; index < num; index++) {
+                    RelativeLayout v = (RelativeLayout) lv.getChildAt(index);
+                    if(v.getVisibility() == View.GONE) {
+                        note = notes.get(index);
+                        notes.remove(index);
+                        dbHelper.removeNote(note);
+                    }
+                }
+                mCurrentDateBtn.setTag(notes);
+                HideDayView();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -1671,7 +1614,7 @@ public class yacalendar extends FragmentActivity
         }
     }
 
-    private void HideDayView()
+    public void HideDayView()
     {
         mDayViewScreen.setVisibility(View.GONE);
         mMainScreen.setVisibility(View.VISIBLE);

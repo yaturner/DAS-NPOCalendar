@@ -1,18 +1,29 @@
 package com.das.yacalendar.adapters;
 
+import android.content.ClipData;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.das.yacalendar.NoteListItemView;
 import com.das.yacalendar.R;
 import com.das.yacalendar.notes.Note;
+import com.das.yacalendar.yacalendar;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -59,10 +70,19 @@ public class NotesListItemAdapter extends ArrayAdapter {
         }
 
         Note note = notes.get(position);
-        NoteListItemView itemView = (NoteListItemView) row.findViewById(R.id.noteitem_text);
+        final NoteListItemView itemView = (NoteListItemView) row.findViewById(R.id.noteitem_text);
         ImageButton deleteBtn = (ImageButton)row.findViewById(R.id.noteitem_deleteBtn);
         itemView.setText(note.getText());
-        deleteBtn.setVisibility((note.isEditable())?View.VISIBLE:View.GONE);
+        deleteBtn.setVisibility((note.isEditable()) ? View.VISIBLE : View.GONE);
+        deleteBtn.setTag((Integer) position);
+        itemView.setEnabled((note.isEditable()) ? true : false);
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RelativeLayout iv = (RelativeLayout) v.getParent();
+                iv.setVisibility(View.GONE);
+            }
+        });
         return row;
     }
 }

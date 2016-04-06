@@ -15,6 +15,8 @@ import com.das.yacalendar.notes.Note;
 import com.das.yacalendar.yacalendar;
 import com.google.common.collect.ArrayListMultimap;
 
+import java.sql.SQLDataException;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -241,6 +243,14 @@ public class DBHelper extends SQLiteOpenHelper
         db.replace(CalendarContract.NOTE_TABLE_NAME, null, values);
 
         closeDatabase();
+    }
+
+    public boolean removeNote(final Note note)
+    {
+        SQLiteDatabase db = this.openDatabase();
+        String whereClause = CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_ID + "=?";
+        String[] whereArgs = new String[] { String.valueOf(note.getId()) };
+        return db.delete(CalendarContract.NOTE_TABLE_NAME, whereClause, whereArgs) > 0;
     }
 
     /**
