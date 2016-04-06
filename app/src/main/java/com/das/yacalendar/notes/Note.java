@@ -60,6 +60,7 @@ public class Note implements Serializable
         this.date = date;
         this.priority = priority;
         this.text = text;
+        this.editable = editable;;
     }
 
     public Note(final long id, final Calendar date, final int priority, final String text, final boolean editable)
@@ -68,6 +69,7 @@ public class Note implements Serializable
         this.date = date;
         this.priority = priority;
         this.text = text;
+        this.editable = editable;;
     }
 
     public void Save(final DataOutputStream obj_out) throws IOException

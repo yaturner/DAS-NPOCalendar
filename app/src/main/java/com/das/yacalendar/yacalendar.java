@@ -363,7 +363,9 @@ public class yacalendar extends FragmentActivity
                         {
                             long id = dbHelper.addNote(note);
                             note.setId(id);
+                            mNotesListItemAdapter.notifyDataSetInvalidated();
                             mNotesListItemAdapter.notifyDataSetChanged();
+                            UpdateFooter(note);
                         }
                 }
 
@@ -1660,7 +1662,7 @@ public class yacalendar extends FragmentActivity
             fabBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    showAddNoteDialog(mCalendar);
                 }
             });
             mMainScreen.setVisibility(View.GONE);
@@ -2009,8 +2011,9 @@ public class yacalendar extends FragmentActivity
 
     private void UpdateFooter(final Note note)
     {
-        List<Note> notes = new ArrayList<>();
+        List<Note> notes = (List < Note >) mCurrentDateBtn.getTag();
         notes.add(note);
+        mCurrentDateBtn.setTag(notes);
         UpdateFooter(notes);
     }
 

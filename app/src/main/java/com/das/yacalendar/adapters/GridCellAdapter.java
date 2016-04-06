@@ -246,7 +246,7 @@ public class GridCellAdapter extends BaseAdapter  {
 
 // Set the Day GridCell
         gridcell.setText(theday);
-        List<Note> notes = eventsPerMonthMap.get(position+1); //zero based
+        List<Note> notes = eventsPerMonthMap.get(position-1); //zero based
         gridcell.setTag(notes);
         Log.d(TAG, "Setting GridCell " + theday + "-" + themonth + "-"
                 + theyear);

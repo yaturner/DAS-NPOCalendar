@@ -1,5 +1,6 @@
 package com.das.yacalendar.dialog;
 
+import android.os.Message;
 import android.support.v4.app.DialogFragment;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -54,7 +55,6 @@ public class AddNoteDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 getDialog().dismiss();
-                getDialog().cancel();
             }
         });
 
@@ -80,7 +80,9 @@ public class AddNoteDialog extends DialogFragment {
                 }
                 Note note = new Note(date, priority, text, true);
                 yacalendar main = yacalendar.getInstance();
-                main.getMsgHandler().obtainMessage(yacalendar.kMessageAddNote, note);
+                Message msg = main.getMsgHandler().obtainMessage(yacalendar.kMessageAddNote, note);
+                main.getMsgHandler().sendMessage(msg);
+                getDialog().dismiss();
             }
         });
         return view;
