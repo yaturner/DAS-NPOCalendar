@@ -71,4 +71,12 @@ Thanks,
     <string name="cancel_warning">All changes will be lost.\nDo you wish to continue?</string>
     <string name="RemindersFor">Reminders for</string>
     <string name="new_note_title">New Local Reminder</string>
+    <string name="no_text_entered">You must enter a reminder</string>
+    <string name="priority_prompt">Select Priority</string>
+    <string-array name="priority_value_array">
+        <item>Select a priority</item>
+        <item>High</item>
+        <item>Medium</item>
+        <item>Low</item>
+    </string-array>
 </resources>

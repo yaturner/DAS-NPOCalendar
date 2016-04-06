@@ -33,7 +33,10 @@
         android:layout_below="@+id/new_note_text"
         android:layout_alignStart="@+id/new_note_text"
         android:layout_marginStart="44dp"
-        android:layout_margin="10dip" />
+        android:layout_margin="10dip"
+        android:entries="@array/priority_value_array"
+        android:prompt="@string/priority_prompt" />
+    />
 
     <LinearLayout
         android:orientation="horizontal"

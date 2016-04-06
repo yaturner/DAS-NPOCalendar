@@ -212,10 +212,11 @@ public class yacalendar extends FragmentActivity
     private TypedArray monthBackground;
     public Handler msgHandler = null;
 
-    public final static int kMessageInfo = 1;
-    public final static int kMessageNotes = 2;
-    public final static int kMessageSplashImage = 3;
-    public final static int kMessageMonthImage = 4;
+    public final static int kMessageInfo = 101;
+    public final static int kMessageNotes = 102;
+    public final static int kMessageSplashImage = 103;
+    public final static int kMessageMonthImage = 104;
+    public final static int kMessageAddNote = 105;
 
     public DBHelper dbHelper = null;
     public int currentCalendarVersion = -1;
@@ -356,7 +357,16 @@ public class yacalendar extends FragmentActivity
                             taskNotes.execute(urlString);
                         }
                         break;
+                    case kMessageAddNote:
+                        Note note = (Note)msg.obj;
+                        if(note != null)
+                        {
+                            long id = dbHelper.addNote(note);
+                            note.setId(id);
+                            mNotesListItemAdapter.notifyDataSetChanged();
+                        }
                 }
+
             }
         };
 
@@ -1486,7 +1496,7 @@ public class yacalendar extends FragmentActivity
                 this.finish();
                 return true;
             case MENU_NEW:
-                composeNewNote();
+                composeNewNote(mCalendar);
                 return true;
             case MENU_CLEAR_ALL:
                 mNotesListItemAdapter.clear();
@@ -1544,14 +1554,14 @@ public class yacalendar extends FragmentActivity
     /**
      * composeNewNote
      */
-    public void composeNewNote() {
+    public void composeNewNote(final Calendar date) {
 
         ListView lv = (ListView) findViewById(R.id.day_listview);
-        mNotesListItemAdapter.add(""); //make this empty so that the hint text will appear
-        mNotesListItemAdapter.notifyDataSetChanged();
-        mNoteListSelectedItemIndex = mNotesListItemAdapter.getCount() - 1;
+//        mNotesListItemAdapter.add(""); //make this empty so that the hint text will appear
+//        mNotesListItemAdapter.notifyDataSetChanged();
+//        mNoteListSelectedItemIndex = mNotesListItemAdapter.getCount() - 1;
 
-        showAddNoteDialog();
+        showAddNoteDialog(date);
         //If the this is the first time this dialog is shown, onCreateDialog will
         // handle initializing the values, other wise we do it here
 //                if (mEditNoteDialog != null)
@@ -1928,6 +1938,11 @@ public class yacalendar extends FragmentActivity
                 cal.get(Calendar.YEAR));
     }
 
+    public Handler getMsgHandler() {
+        return msgHandler;
+    }
+
+
     /**
      * displayMonth in view v
      */
@@ -1986,9 +2001,9 @@ public class yacalendar extends FragmentActivity
         }
     }
 
-    private void showAddNoteDialog() {
+    private void showAddNoteDialog(final Calendar date) {
         FragmentManager fm = getSupportFragmentManager();
-        AddNoteDialog editNameDialog = new AddNoteDialog();
+        AddNoteDialog editNameDialog = new AddNoteDialog(date);
         editNameDialog.show(fm, "fragment_add_note");
     }
 
