@@ -3,15 +3,13 @@ package com.das.yacalendar.dialog;
 import android.os.Message;
 import android.support.v4.app.DialogFragment;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.das.yacalendar.R;
@@ -21,7 +19,6 @@ import com.das.yacalendar.yacalendar;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.List;
 
 /**
  * Created by yaturner on 4/5/2016.
@@ -31,18 +28,45 @@ public class AddNoteDialog extends DialogFragment {
 
     private EditText noteText = null;
     private Spinner prioritySpinner = null;
+    private TimePicker timePicker = null;
     private Button doneButton = null;
     private Button cancelButton = null;
     private Note note = null;
     private Calendar date = null;
     private int priority = -1;
-    public AddNoteDialog(final Calendar date) {
-        this.date = date;
+    public AddNoteDialog()
+    {
+
+    }
+
+    /**
+     * Create a new instance of AddNoteDialog, providing "date"
+     * as an argument.
+     */
+    static public AddNoteDialog newInstance(final Calendar date) {
+        AddNoteDialog f = new AddNoteDialog();
+
+        // Supply num input as an argument.
+        Bundle args = new Bundle();
+        args.putSerializable(yacalendar.KEY_DATE, date);
+        f.setArguments(args);
+
+        return f;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        super.onCreateView(inflater, container,savedInstanceState);
+        Bundle bundle = getArguments();
+        if(bundle.containsKey(yacalendar.KEY_DATE))
+        {
+            this.date = (Calendar)bundle.getSerializable(yacalendar.KEY_DATE);
+        }
+        else
+        {
+            throw new RuntimeException("Internal Error in AddNoteDialog");
+        }
         View view = inflater.inflate(R.layout.add_note_dlg, container);
         noteText = (EditText) view.findViewById(R.id.new_note_text);
         prioritySpinner = (Spinner) view.findViewById(R.id.new_note_priority_spinner);
@@ -80,7 +104,7 @@ public class AddNoteDialog extends DialogFragment {
                 }
                 Note note = new Note(date, priority, text, true);
                 yacalendar main = yacalendar.getInstance();
-                Message msg = main.getMsgHandler().obtainMessage(yacalendar.kMessageAddNote, note);
+                Message msg = main.getMsgHandler().obtainMessage(yacalendar.HANDLER_MESSAGE_NEW_NOTE, note);
                 main.getMsgHandler().sendMessage(msg);
                 getDialog().dismiss();
             }

@@ -73,6 +73,8 @@ Thanks,
     <string name="new_note_title">New Local Reminder</string>
     <string name="no_text_entered">You must enter a reminder</string>
     <string name="priority_prompt">Select Priority</string>
+    <string name="enter_reminder_text_here">Enter Reminder Text Here</string>
+    <string name="select_reminder_time_here">Select Reminder Time Here</string>
     <string-array name="priority_value_array">
         <item>Select a priority</item>
         <item>High</item>

@@ -58,7 +58,7 @@ public class NotesServerCall extends BasicAPICall
                 e.printStackTrace();
             }
         }
-        Message msg = main.msgHandler.obtainMessage(main.kMessageNotes);
+        Message msg = main.msgHandler.obtainMessage(yacalendar.HANDLER_MESSAGE_NOTES);
         msg.obj = (Object) notes;
         main.msgHandler.sendMessage(msg);
 

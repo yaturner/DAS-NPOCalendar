@@ -2,23 +2,10 @@ package com.das.yacalendar.network;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Environment;
 import android.os.Message;
 import android.util.Base64;
-import android.util.Log;
 
-import com.das.yacalendar.UUDecode;
 import com.das.yacalendar.yacalendar;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 
 /**
@@ -48,7 +35,7 @@ public class MonthServerCall extends BasicAPICall {
         } else {
             bitmap = null;
         }
-        Message msg = main.msgHandler.obtainMessage(main.kMessageMonthImage, monthNumber, 0, bitmap);
+        Message msg = main.msgHandler.obtainMessage(main.HANDLER_MESSAGE_MONTH_IMAGE, monthNumber, 0, bitmap);
         main.msgHandler.sendMessage(msg);
     }
 }

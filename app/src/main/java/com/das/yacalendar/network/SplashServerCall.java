@@ -49,7 +49,8 @@ public class SplashServerCall extends BasicAPICall
                     out = new ByteArrayOutputStream();
                     new UUDecode(in, out);
                     in.close();
-                    Message msg = main.msgHandler.obtainMessage(main.kMessageSplashImage, 0, 0, out.toByteArray());
+                    Message msg = main.msgHandler.obtainMessage(yacalendar.HANDLER_MESSAGE_SPLASH_IMAGE,
+                            0, 0, out.toByteArray());
                     main.msgHandler.sendMessage(msg);
                     out.close();
 

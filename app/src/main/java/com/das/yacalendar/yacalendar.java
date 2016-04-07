@@ -19,12 +19,10 @@
 
 package com.das.yacalendar;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -52,7 +50,6 @@ import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -64,7 +61,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -95,14 +91,12 @@ import com.das.yacalendar.network.NotesServerCall;
 import com.das.yacalendar.network.SplashServerCall;
 import com.das.yacalendar.notes.Note;
 
-import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -129,18 +123,12 @@ public class yacalendar extends FragmentActivity
     private static final int MENU_EXIT = Menu.FIRST + 4;
 
     // Day View Menu
-    private static final int MENU_NEW = Menu.FIRST + 5;
-    private static final int MENU_CLEAR_ALL = Menu.FIRST + 6;
-    private static final int MENU_CANCEL = Menu.FIRST + 7;
-    private static final int MENU_DONE = Menu.FIRST + 8;
+    private static final int MENU_CANCEL = Menu.FIRST + 5;
+    private static final int MENU_DONE = Menu.FIRST + 6;
 
     //total number of strings for the day view, if the note has less than this number
     // then the view is padded with empty strings
     private static final int NUMBER_OF_NOTE_STRINGS = 6;
-
-    // Dialog Ids
-    private static final int DIALOG_EDIT_NOTE = 1;
-    private static final int DIALOG_WARNING_CANCEL = 2;
 
     public Animation mSlideLeftIn = null;
     public Animation mSlideLeftOut = null;
@@ -148,6 +136,7 @@ public class yacalendar extends FragmentActivity
     public Animation mSlideRightOut = null;
     public Animation mSlideDownOut = null;
     public Animation mSlideUpIn = null;
+
     // The currently selected month and year
     public int mCurrentMonthIndex;
     public int mCurrentYear;
@@ -155,7 +144,6 @@ public class yacalendar extends FragmentActivity
     public Calendar mStartDate;
     public Calendar mEndDate;
 
-    //    public Calendar mCurrentDisplayedDate;
     public View mCurrentMonthView = null;
     //Currently display calendar (month)
     public Calendar mCalendar = null;
@@ -213,12 +201,16 @@ public class yacalendar extends FragmentActivity
     private TypedArray monthBackground;
     public Handler msgHandler = null;
 
-    public final static int kMessageInfo = 101;
-    public final static int kMessageNotes = 102;
-    public final static int kMessageSplashImage = 103;
-    public final static int kMessageMonthImage = 104;
-    public final static int kMessageAddNote = 105;
-    public final static int kMessageRemoveNote = 106;
+    public final static int HANDLER_MESSAGE_INFO = 101;
+    public final static int HANDLER_MESSAGE_NOTES = 102;
+    public final static int HANDLER_MESSAGE_SPLASH_IMAGE = 103;
+    public final static int HANDLER_MESSAGE_MONTH_IMAGE = 104;
+    public final static int HANDLER_MESSAGE_NEW_NOTE = 105;
+    public final static int HANDLER_MESSAGE_ADD_NOTE = 106;
+
+    //Bundle keys
+    public static final String KEY_DATE = "date";
+
 
     public DBHelper dbHelper = null;
     public int currentCalendarVersion = -1;
@@ -262,7 +254,7 @@ public class yacalendar extends FragmentActivity
                 Bitmap bitmap = null;
                 switch (msg.what)
                 {
-                    case kMessageInfo:
+                    case HANDLER_MESSAGE_INFO:
                         calendarInfo = (CalendarInfo) msg.obj;
                         //Get the calendar info, if the versions match, skip the rest
                         //get the current version and create the database if needed
@@ -311,7 +303,7 @@ public class yacalendar extends FragmentActivity
                             taskSplash.execute(urlString);
                         }
                         break;
-                    case kMessageNotes:
+                    case HANDLER_MESSAGE_NOTES:
                         ArrayList<Note> notes = (ArrayList<Note>) msg.obj;
                         if (notes.size() > 0)
                         {
@@ -324,7 +316,7 @@ public class yacalendar extends FragmentActivity
                         InitializeData();
                         InitializeGUI();
                         break;
-                    case kMessageSplashImage:
+                    case HANDLER_MESSAGE_SPLASH_IMAGE:
                         blob = (byte[])msg.obj;
                         bitmap = BitmapFactory.decodeByteArray(blob, 0, blob.length);
                         splashImage = new BitmapDrawable(getResources(), bitmap);
@@ -341,7 +333,7 @@ public class yacalendar extends FragmentActivity
                         MonthServerCall taskMonth = new MonthServerCall(singleton, 1);
                         taskMonth.execute(urlString);
                         break;
-                    case kMessageMonthImage:
+                    case HANDLER_MESSAGE_MONTH_IMAGE:
                         int monthNo = msg.arg1;
                         bitmap = (Bitmap)msg.obj;
                         calendarInfo.addMonthImage(monthNo, bitmap);
@@ -359,7 +351,7 @@ public class yacalendar extends FragmentActivity
                             taskNotes.execute(urlString);
                         }
                         break;
-                    case kMessageAddNote:
+                    case HANDLER_MESSAGE_NEW_NOTE:
                         Note note = (Note)msg.obj;
                         if(note != null)
                         {
@@ -1313,42 +1305,47 @@ public class yacalendar extends FragmentActivity
 	/*                                                                             */
 	/*                          Menus                                              */
 	/*                                                                             */
+    /*******************************************************************************/
 
     /**
-     * ***************************************************************************
+     * onCreateContextMenu
+     *
+     * @param menu
+     * @param v
+     * @param menuInfo
      */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo)
     {
-        if (v.getId() == R.id.day_listview)
-        {
-            //			mContextMenuInfo = (AdapterView.AdapterContextMenuInfo)menuInfo;
-            //			mNoteListSelectedItemIndex = mContextMenuInfo.position;
-
-            menu.setHeaderTitle(getResources().getString(R.string.Menu_Context_Title));
-
-            menu.clear();
-            menu.add(Menu.NONE, v.getId(), 0, R.string.Menu_Delete);
-            menu.add(Menu.NONE, v.getId(), 0, R.string.Menu_Edit);
-        }
+//        if (v.getId() == R.id.day_listview)
+//        {
+//            //			mContextMenuInfo = (AdapterView.AdapterContextMenuInfo)menuInfo;
+//            //			mNoteListSelectedItemIndex = mContextMenuInfo.position;
+//
+//            menu.setHeaderTitle(getResources().getString(R.string.Menu_Context_Title));
+//
+//            menu.clear();
+//            menu.add(Menu.NONE, v.getId(), 0, R.string.Menu_Delete);
+//            menu.add(Menu.NONE, v.getId(), 0, R.string.Menu_Edit);
+//        }
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item)
     {
-        if (item.getTitle().equals(getResources().getString(R.string.Menu_Delete)))
-        {
-            DeleteItemFromNotes();
-        } else if (item.getTitle().equals(getResources().getString(R.string.Menu_Edit)))
-        {
-            //If the this is the first time this dialog is shown, onCreateDialog will
-            // handle initializing the values, other wise we do it here
-            if (mEditNoteDialog != null)
-            {
-                InitializeEditNoteDialog();
-            }
-            showDialog(DIALOG_EDIT_NOTE);
-        }
+//        if (item.getTitle().equals(getResources().getString(R.string.Menu_Delete)))
+//        {
+//            DeleteItemFromNotes();
+//        } else if (item.getTitle().equals(getResources().getString(R.string.Menu_Edit)))
+//        {
+//            //If the this is the first time this dialog is shown, onCreateDialog will
+//            // handle initializing the values, other wise we do it here
+//            if (mEditNoteDialog != null)
+//            {
+//                InitializeEditNoteDialog();
+//            }
+//            showDialog(DIALOG_EDIT_NOTE);
+//        }
         return true;
     }
 
@@ -1377,10 +1374,10 @@ public class yacalendar extends FragmentActivity
 
         if (mDayViewScreen.getVisibility() == View.VISIBLE)
         {
-            menu.add(Menu.NONE, MENU_NEW, 0, R.string.Menu_New).setIcon(
-                    getResources().getDrawable(R.drawable.ic_menu_compose));
-            menu.add(Menu.NONE, MENU_CLEAR_ALL, 1, R.string.Menu_Clear_All).setIcon(
-                    getResources().getDrawable(R.drawable.ic_menu_clear_playlist));
+//            menu.add(Menu.NONE, MENU_NEW, 0, R.string.Menu_New).setIcon(
+//                    getResources().getDrawable(R.drawable.ic_menu_compose));
+//            menu.add(Menu.NONE, MENU_CLEAR_ALL, 1, R.string.Menu_Clear_All).setIcon(
+//                    getResources().getDrawable(R.drawable.ic_menu_clear_playlist));
             menu.add(Menu.NONE, MENU_CANCEL, 2, R.string.Menu_Cancel).setIcon(
                     getResources().getDrawable(android.R.drawable.ic_menu_close_clear_cancel));
             menu.add(Menu.NONE, MENU_DONE, 3, R.string.Menu_Done).setIcon(
@@ -1440,19 +1437,19 @@ public class yacalendar extends FragmentActivity
             case MENU_EXIT:
                 this.finish();
                 return true;
-            case MENU_NEW:
-                composeNewNote(mCalendar);
-                return true;
-            case MENU_CLEAR_ALL:
-                mNotesListItemAdapter.clear();
-                for (int pos = 0; pos < NUMBER_OF_NOTE_STRINGS; pos++)
-                {
-                    mNotesListItemAdapter.add("");
-                }
-
-                mNotesListItemAdapter.notifyDataSetChanged();
-                UpdateFooter(note);
-                return true;
+//            case MENU_NEW:
+//                composeNewNote(mCalendar);
+//                return true;
+//            case MENU_CLEAR_ALL:
+//                mNotesListItemAdapter.clear();
+//                for (int pos = 0; pos < NUMBER_OF_NOTE_STRINGS; pos++)
+//                {
+//                    mNotesListItemAdapter.add("");
+//                }
+//
+//                mNotesListItemAdapter.notifyDataSetChanged();
+//                UpdateFooter(note);
+//                return true;
             case MENU_CANCEL:
                 HideDayView();
                 return true;
@@ -1948,7 +1945,7 @@ public class yacalendar extends FragmentActivity
 
     private void showAddNoteDialog(final Calendar date) {
         FragmentManager fm = getSupportFragmentManager();
-        AddNoteDialog editNameDialog = new AddNoteDialog(date);
+        AddNoteDialog editNameDialog = AddNoteDialog.newInstance(date);
         editNameDialog.show(fm, "fragment_add_note");
     }
 

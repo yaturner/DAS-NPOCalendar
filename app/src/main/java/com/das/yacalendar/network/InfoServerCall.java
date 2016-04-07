@@ -64,7 +64,7 @@ public class InfoServerCall extends BasicAPICall
                 calendarInfo = new CalendarInfo(version, startDate, endDate);
             }
         }
-        Message msg = main.msgHandler.obtainMessage(main.kMessageInfo);
+        Message msg = main.msgHandler.obtainMessage(main.HANDLER_MESSAGE_INFO);
         msg.obj = (Object) calendarInfo;
         main.msgHandler.sendMessage(msg);
 
