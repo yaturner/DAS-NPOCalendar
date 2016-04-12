@@ -1,6 +1,7 @@
 package com.das.yacalendar.adapters;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -253,7 +254,8 @@ public class GridCellAdapter extends BaseAdapter  {
                     android.R.color.black));
         }
         if (day_color[1].equals("ORANGE")) {
-            gridcell.setTextColor(context.getResources().getColor(android.R.color.holo_orange_dark));
+            gridcell.setTextColor(context.getResources().getColor(android.R.color.holo_orange_light));
+            gridcell.setTypeface(null, Typeface.BOLD);
         }
         return row;
     }

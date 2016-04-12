@@ -35,18 +35,19 @@
         android:textStyle="bold"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <TimePicker
-        android:id="@+id/new_note_timePicker"
+    <Button
+        android:id="@+id/new_note_timePickerBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/title1"
         android:layout_centerHorizontal="true"
+        android:text="@string/select"
         android:layout_margin="10dip" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/new_note_timePicker"
+        android:layout_below="@+id/new_note_timePickerBtn"
         android:layout_centerHorizontal="true"
         android:layout_margin="10dip"
         android:gravity="bottom"

@@ -45,7 +45,7 @@ public class NotesServerCall extends BasicAPICall
                 for (int iDay = 0; iDay < days.length(); iDay++)
                 {
                     JSONObject day = days.getJSONObject(iDay);
-                    Date date = yacalendar.parseDate(day.getString("date"), Constants.SHORT_DATE_FORMAT);
+                    Date date = yacalendar.parseDate(day.getString("date"), Constants.LONG_DATE_FORMAT);
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(date);
                     //If we are getting the Note from the server then it is not editable

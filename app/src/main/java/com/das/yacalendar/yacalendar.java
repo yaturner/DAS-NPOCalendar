@@ -43,6 +43,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.util.Pair;
 import android.text.Editable;
 import android.text.Selection;
 import android.util.Log;
@@ -85,7 +86,9 @@ import com.das.yacalendar.listeners.CalendarGestureListener;
 import com.das.yacalendar.listeners.MonthNameTouchListener;
 import com.das.yacalendar.listeners.SlideInAnimationListener;
 import com.das.yacalendar.listeners.SlideOutAnimationListener;
+import com.das.yacalendar.network.EndpointsAsyncTask;
 import com.das.yacalendar.network.InfoServerCall;
+
 import com.das.yacalendar.network.MonthServerCall;
 import com.das.yacalendar.network.NotesServerCall;
 import com.das.yacalendar.network.SplashServerCall;
@@ -242,6 +245,10 @@ public class yacalendar extends FragmentActivity
         mMonthView2 = (RelativeLayout) findViewById(R.id.MonthView2);
         mDayViewScreen = (RelativeLayout) findViewById(R.id.day_view_screen);
 
+        ///////////////////DEBUGGING ONLY///////////////
+        new EndpointsAsyncTask().execute(new Pair<Context, String>(this, "Manfred"));
+        ///////////////////DEBUGGING ONLY///////////////
+
         mMainScreen.setVisibility(View.INVISIBLE);
 
         msgHandler = new Handler()
@@ -372,58 +379,59 @@ public class yacalendar extends FragmentActivity
         //Eula.show(this);
 
         ///////////////////showBusyDialog();
+        return;
 
-        String result = null;
-        String urlString = null;
-
-        //Get the calendar info, if the versions match, skip the rest
-        //get the current version and create the database if needed
-        dbHelper = new DBHelper(this);
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor c = null;
-        try {
-            c = db.query(CalendarContract.INFO_TABLE_NAME, null, null, null, null, null, null);
-        }
-        catch(Exception e)
-        {
-            c  = null;
-        }
-
-//        if(c != null && c.getCount() > 0)
-//        {
-//            c.moveToFirst();
-//            currentCalendarVersion = c.getInt(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_CALENDAR_VERSION));
-//            mStartDate = Calendar.getInstance();
-//            mEndDate = Calendar.getInstance();
-//            String startDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_START_DATE));
-//            mStartDate.setTime(parseDate(startDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
-//            String endDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_END_DATE));
-//            mEndDate.setTime(parseDate(endDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
-//            calendarInfo = new CalendarInfo(currentCalendarVersion, startDateString, endDateString);
+//        String result = null;
+//        String urlString = null;
+//
+//        //Get the calendar info, if the versions match, skip the rest
+//        //get the current version and create the database if needed
+//        dbHelper = new DBHelper(this);
+//        SQLiteDatabase db = dbHelper.getReadableDatabase();
+//        Cursor c = null;
+//        try {
+//            c = db.query(CalendarContract.INFO_TABLE_NAME, null, null, null, null, null, null);
 //        }
-//        else
+//        catch(Exception e)
 //        {
-            //TODO get this info from the server
-            urlString = Constants.SERVER_ADDRESS + "/getInfo/npo/das";
-            new InfoServerCall(this).execute(urlString);
+//            c  = null;
 //        }
-
-        //InitializeData() here, InitializeGUI() is called after the calendar info is retrieved
-        //InitializeData();
-        //InitializeGUI();
-/*
-        //Get the calendar notes
-        urlString = Constants.SERVER_ADDRESS + "/getCalendar/npo/das";
-        new NotesServerCall(this).execute(urlString);
-
-        //Get the first month image, the messageHandler will do the rest
-        // months in the database are 01:12
-        // always start with the current month
-        Calendar now = Calendar.getInstance();
-        int thisMonth = now.get(Calendar.MONTH) + 1;
-        urlString = Constants.SERVER_ADDRESS + "/getMonth/npo/das/month/"+(thisMonth<10?"0"+thisMonth:""+thisMonth);
-        new MonthServerCall(this).execute(urlString);
-*/
+//
+////        if(c != null && c.getCount() > 0)
+////        {
+////            c.moveToFirst();
+////            currentCalendarVersion = c.getInt(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_CALENDAR_VERSION));
+////            mStartDate = Calendar.getInstance();
+////            mEndDate = Calendar.getInstance();
+////            String startDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_START_DATE));
+////            mStartDate.setTime(parseDate(startDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
+////            String endDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_END_DATE));
+////            mEndDate.setTime(parseDate(endDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
+////            calendarInfo = new CalendarInfo(currentCalendarVersion, startDateString, endDateString);
+////        }
+////        else
+////        {
+//            //TODO get this info from the server
+//            urlString = Constants.SERVER_ADDRESS + "/getInfo/npo/das";
+//            new InfoServerCall(this).execute(urlString);
+////        }
+//
+//        //InitializeData() here, InitializeGUI() is called after the calendar info is retrieved
+//        //InitializeData();
+//        //InitializeGUI();
+///*
+//        //Get the calendar notes
+//        urlString = Constants.SERVER_ADDRESS + "/getCalendar/npo/das";
+//        new NotesServerCall(this).execute(urlString);
+//
+//        //Get the first month image, the messageHandler will do the rest
+//        // months in the database are 01:12
+//        // always start with the current month
+//        Calendar now = Calendar.getInstance();
+//        int thisMonth = now.get(Calendar.MONTH) + 1;
+//        urlString = Constants.SERVER_ADDRESS + "/getMonth/npo/das/month/"+(thisMonth<10?"0"+thisMonth:""+thisMonth);
+//        new MonthServerCall(this).execute(urlString);
+//*/
     }
 
 
@@ -437,7 +445,7 @@ public class yacalendar extends FragmentActivity
     private void InitializeData()
     {
         mCalendar = Calendar.getInstance();
-        mCurrentMonthIndex = mCalendar.get(Calendar.MONTH);
+        mCurrentMonthIndex = mCalendar.get(Calendar.MONTH) + 1;
         mCurrentYear = mCalendar.get(Calendar.YEAR);
 
         monthBackground = getResources().obtainTypedArray(R.array.MonthBackgroundIds);

@@ -1,5 +1,6 @@
 package com.das.yacalendar.dialog;
 
+import android.app.TimePickerDialog;
 import android.os.Message;
 import android.support.v4.app.DialogFragment;
 import android.os.Bundle;
@@ -23,12 +24,12 @@ import java.util.Calendar;
 /**
  * Created by yaturner on 4/5/2016.
  */
-public class AddNoteDialog extends DialogFragment {
+public class AddNoteDialog extends DialogFragment implements TimePickerDialog.OnTimeSetListener{
 
-
+    private AddNoteDialog addNoteDialog = null;
     private EditText noteText = null;
     private Spinner prioritySpinner = null;
-    private TimePicker timePicker = null;
+    private Button timePickerButton = null;
     private Button doneButton = null;
     private Button cancelButton = null;
     private Note note = null;
@@ -50,6 +51,7 @@ public class AddNoteDialog extends DialogFragment {
         Bundle args = new Bundle();
         args.putSerializable(yacalendar.KEY_DATE, date);
         f.setArguments(args);
+        f.addNoteDialog = f;
 
         return f;
     }
@@ -70,11 +72,20 @@ public class AddNoteDialog extends DialogFragment {
         View view = inflater.inflate(R.layout.add_note_dlg, container);
         noteText = (EditText) view.findViewById(R.id.new_note_text);
         prioritySpinner = (Spinner) view.findViewById(R.id.new_note_priority_spinner);
+        timePickerButton = (Button) view.findViewById(R.id.new_note_timePickerBtn);
         doneButton = (Button) view.findViewById(R.id.new_note_done_btn);
         cancelButton = (Button) view.findViewById(R.id.new_note_cancel_btn);
 
         getDialog().setTitle(getActivity().getResources().getString(R.string.new_note_title));
 
+        timePickerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TimePickerDialog dlg = new TimePickerDialog(getActivity(), addNoteDialog, 0, 0, false);
+                dlg.updateTime(date.get(Calendar.HOUR_OF_DAY), date.get(Calendar.MINUTE));
+                dlg.show();
+            }
+        });
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,4 +123,17 @@ public class AddNoteDialog extends DialogFragment {
         return view;
     }
 
+    @Override
+    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+        if(hourOfDay != 0 && minute != 0)
+        {
+            date.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            date.set(Calendar.MINUTE, minute);
+        }
+        else
+        {
+            date.set(Calendar.HOUR_OF_DAY, 0);
+            date.set(Calendar.MINUTE, 0);
+        }
+    }
 }
