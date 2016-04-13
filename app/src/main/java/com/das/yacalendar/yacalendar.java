@@ -86,13 +86,13 @@ import com.das.yacalendar.listeners.CalendarGestureListener;
 import com.das.yacalendar.listeners.MonthNameTouchListener;
 import com.das.yacalendar.listeners.SlideInAnimationListener;
 import com.das.yacalendar.listeners.SlideOutAnimationListener;
-import com.das.yacalendar.network.EndpointsAsyncTask;
-import com.das.yacalendar.network.InfoServerCall;
 
 import com.das.yacalendar.network.MonthServerCall;
 import com.das.yacalendar.network.NotesServerCall;
 import com.das.yacalendar.network.SplashServerCall;
 import com.das.yacalendar.notes.Note;
+
+import com.das.yacalendar.network.ServletPostAsyncTask;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -246,7 +246,7 @@ public class yacalendar extends FragmentActivity
         mDayViewScreen = (RelativeLayout) findViewById(R.id.day_view_screen);
 
         ///////////////////DEBUGGING ONLY///////////////
-        new EndpointsAsyncTask().execute(new Pair<Context, String>(this, "Manfred"));
+        new ServletPostAsyncTask().execute(new Pair<Context, String>(this, "das"));
         ///////////////////DEBUGGING ONLY///////////////
 
         mMainScreen.setVisibility(View.INVISIBLE);
