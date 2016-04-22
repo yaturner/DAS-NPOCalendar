@@ -87,6 +87,8 @@ import com.das.yacalendar.listeners.MonthNameTouchListener;
 import com.das.yacalendar.listeners.SlideInAnimationListener;
 import com.das.yacalendar.listeners.SlideOutAnimationListener;
 
+import com.das.yacalendar.network.InfoServerCall;
+import com.das.yacalendar.network.MonthImagesServerCall;
 import com.das.yacalendar.network.MonthServerCall;
 import com.das.yacalendar.network.NotesServerCall;
 import com.das.yacalendar.network.SplashServerCall;
@@ -180,6 +182,7 @@ public class yacalendar extends FragmentActivity
     //Day View
     private int mNoteListSelectedItemIndex = -1;
     private ArrayList<String> mCurrentNotesList = null;
+    private ArrayList<String> monthImageNames = null;
     private NotesListItemAdapter mNotesListItemAdapter = null;
     //This method handles the direction arrows for the month name
     private OnTouchListener mMonthNameTouchListener = null;
@@ -209,7 +212,7 @@ public class yacalendar extends FragmentActivity
     public final static int HANDLER_MESSAGE_SPLASH_IMAGE = 103;
     public final static int HANDLER_MESSAGE_MONTH_IMAGE = 104;
     public final static int HANDLER_MESSAGE_NEW_NOTE = 105;
-    public final static int HANDLER_MESSAGE_ADD_NOTE = 106;
+    public final static int HANDLER_MESSAGE_MONTH_IMAGE_NAMES = 106;
 
     //Bundle keys
     public static final String KEY_DATE = "date";
@@ -246,7 +249,7 @@ public class yacalendar extends FragmentActivity
         mDayViewScreen = (RelativeLayout) findViewById(R.id.day_view_screen);
 
         ///////////////////DEBUGGING ONLY///////////////
-        new ServletPostAsyncTask().execute(new Pair<Context, String>(this, "das"));
+        ////new ServletPostAsyncTask().execute(new Pair<Context, String>(this, "das"));
         ///////////////////DEBUGGING ONLY///////////////
 
         mMainScreen.setVisibility(View.INVISIBLE);
@@ -286,17 +289,19 @@ public class yacalendar extends FragmentActivity
 
                         //If calendarInfo is null then we couldn't connect to the server
                         //  use the database values if we can
-                        if (calendarInfo == null || currentCalendarVersion == calendarInfo.version) {
-                            mStartDate = Calendar.getInstance();
-                            mEndDate = Calendar.getInstance();
-                            String startDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_START_DATE));
-                            mStartDate.setTime(parseDate(startDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
-                            String endDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_END_DATE));
-                            mEndDate.setTime(parseDate(endDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
-                            InitializeData();
-                            InitializeGUI();
-                        }
-                        else {
+//                        if (calendarInfo == null || currentCalendarVersion == calendarInfo.version)
+//                        {
+//                            mStartDate = Calendar.getInstance();
+//                            mEndDate = Calendar.getInstance();
+//                            String startDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_START_DATE));
+//                            mStartDate.setTime(parseDate(startDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
+//                            String endDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_END_DATE));
+//                            mEndDate.setTime(parseDate(endDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
+//                            InitializeData();
+//                            InitializeGUI();
+//                        }
+//                        else
+                        {
                             mStartDate = calendarInfo.startDate;
                             mEndDate = calendarInfo.endDate;
 
@@ -305,7 +310,7 @@ public class yacalendar extends FragmentActivity
                                     formatDate(mEndDate, Constants.DATABASE_SHORT_DATE_FORMAT));
 
                             //Get the splash image
-                            urlString = Constants.SERVER_ADDRESS + "/getSplash/npo/das";
+                            urlString = Constants.SERVER_ADDRESS + "/getSplash?npo=das";
                             SplashServerCall taskSplash = new SplashServerCall(singleton);
                             taskSplash.execute(urlString);
                         }
@@ -336,27 +341,25 @@ public class yacalendar extends FragmentActivity
                         splash.invalidate();
                         //InitializeGUI();
                         //hideProgressDialog();
-                        urlString = Constants.SERVER_ADDRESS + "/getMonth/npo/das/month/1";
-                        MonthServerCall taskMonth = new MonthServerCall(singleton, 1);
-                        taskMonth.execute(urlString);
+                        urlString = Constants.SERVER_ADDRESS + "/getMonthImages?npo=das";
+                        MonthImagesServerCall taskMonthImageNames = new MonthImagesServerCall(singleton);
+                        taskMonthImageNames.execute(urlString);
                         break;
                     case HANDLER_MESSAGE_MONTH_IMAGE:
                         int monthNo = msg.arg1;
                         bitmap = (Bitmap)msg.obj;
                         calendarInfo.addMonthImage(monthNo, bitmap);
-                        //fill in all the months
-                        if(monthNo < calendarInfo.numMonths)
-                        {
-                            urlString = Constants.SERVER_ADDRESS + "/getMonth/npo/das/month/"+(monthNo+1);
-                            taskMonth = new MonthServerCall(singleton, monthNo+1);
+                        break;
+                    case HANDLER_MESSAGE_MONTH_IMAGE_NAMES:
+                        monthImageNames = (ArrayList<String>)msg.obj;
+                        for(String monthImageName : monthImageNames) {
+                            urlString = Constants.SERVER_ADDRESS + "/getMonthImage?npo=das&month="+monthImageName;
+                            MonthServerCall taskMonth = new MonthServerCall(singleton);
                             taskMonth.execute(urlString);
                         }
-                        else
-                        {
-                            urlString = Constants.SERVER_ADDRESS + "/getCalendar/npo/das";
-                            NotesServerCall taskNotes = new NotesServerCall(singleton);
-                            taskNotes.execute(urlString);
-                        }
+                        urlString = Constants.SERVER_ADDRESS + "/getNotes?npo=das";
+                        NotesServerCall taskNotes = new NotesServerCall(singleton);
+                        taskNotes.execute(urlString);
                         break;
                     case HANDLER_MESSAGE_NEW_NOTE:
                         Note note = (Note)msg.obj;
@@ -379,59 +382,58 @@ public class yacalendar extends FragmentActivity
         //Eula.show(this);
 
         ///////////////////showBusyDialog();
-        return;
 
-//        String result = null;
-//        String urlString = null;
-//
-//        //Get the calendar info, if the versions match, skip the rest
-//        //get the current version and create the database if needed
-//        dbHelper = new DBHelper(this);
-//        SQLiteDatabase db = dbHelper.getReadableDatabase();
-//        Cursor c = null;
-//        try {
-//            c = db.query(CalendarContract.INFO_TABLE_NAME, null, null, null, null, null, null);
-//        }
-//        catch(Exception e)
+        String result = null;
+        String urlString = null;
+
+        //Get the calendar info, if the versions match, skip the rest
+        //get the current version and create the database if needed
+        dbHelper = new DBHelper(this);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor c = null;
+        try {
+            c = db.query(CalendarContract.INFO_TABLE_NAME, null, null, null, null, null, null);
+        }
+        catch(Exception e)
+        {
+            c  = null;
+        }
+
+//        if(c != null && c.getCount() > 0)
 //        {
-//            c  = null;
+//            c.moveToFirst();
+//            currentCalendarVersion = c.getInt(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_CALENDAR_VERSION));
+//            mStartDate = Calendar.getInstance();
+//            mEndDate = Calendar.getInstance();
+//            String startDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_START_DATE));
+//            mStartDate.setTime(parseDate(startDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
+//            String endDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_END_DATE));
+//            mEndDate.setTime(parseDate(endDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
+//            calendarInfo = new CalendarInfo(currentCalendarVersion, startDateString, endDateString);
 //        }
-//
-////        if(c != null && c.getCount() > 0)
-////        {
-////            c.moveToFirst();
-////            currentCalendarVersion = c.getInt(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_CALENDAR_VERSION));
-////            mStartDate = Calendar.getInstance();
-////            mEndDate = Calendar.getInstance();
-////            String startDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_START_DATE));
-////            mStartDate.setTime(parseDate(startDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
-////            String endDateString = c.getString(c.getColumnIndex(CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_END_DATE));
-////            mEndDate.setTime(parseDate(endDateString, Constants.DATABASE_SHORT_DATE_FORMAT));
-////            calendarInfo = new CalendarInfo(currentCalendarVersion, startDateString, endDateString);
-////        }
-////        else
-////        {
-//            //TODO get this info from the server
-//            urlString = Constants.SERVER_ADDRESS + "/getInfo/npo/das";
-//            new InfoServerCall(this).execute(urlString);
-////        }
-//
-//        //InitializeData() here, InitializeGUI() is called after the calendar info is retrieved
-//        //InitializeData();
-//        //InitializeGUI();
-///*
-//        //Get the calendar notes
-//        urlString = Constants.SERVER_ADDRESS + "/getCalendar/npo/das";
-//        new NotesServerCall(this).execute(urlString);
-//
-//        //Get the first month image, the messageHandler will do the rest
-//        // months in the database are 01:12
-//        // always start with the current month
-//        Calendar now = Calendar.getInstance();
-//        int thisMonth = now.get(Calendar.MONTH) + 1;
-//        urlString = Constants.SERVER_ADDRESS + "/getMonth/npo/das/month/"+(thisMonth<10?"0"+thisMonth:""+thisMonth);
-//        new MonthServerCall(this).execute(urlString);
-//*/
+//        else
+//        {
+            //TODO get this info from the server
+            urlString = Constants.SERVER_ADDRESS + "/getInfo?npo=das";
+            new InfoServerCall(this).execute(urlString);
+//        }
+
+        //InitializeData() here, InitializeGUI() is called after the calendar info is retrieved
+        //InitializeData();
+        //InitializeGUI();
+/*
+        //Get the calendar notes
+        urlString = Constants.SERVER_ADDRESS + "/getCalendar/npo/das";
+        new NotesServerCall(this).execute(urlString);
+
+        //Get the first month image, the messageHandler will do the rest
+        // months in the database are 01:12
+        // always start with the current month
+        Calendar now = Calendar.getInstance();
+        int thisMonth = now.get(Calendar.MONTH) + 1;
+        urlString = Constants.SERVER_ADDRESS + "/getMonth/npo/das/month/"+(thisMonth<10?"0"+thisMonth:""+thisMonth);
+        new MonthServerCall(this).execute(urlString);
+*/
     }
 
 

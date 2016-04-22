@@ -27,9 +27,9 @@ public class MyServlet extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-//        String reqName = req.getRequestURI();
-//        String name = req.getParameter("npo");
-//        resp.setContentType("text/plain");
+        String reqName = req.getRequestURI();
+        String name = req.getParameter("npo");
+        resp.setContentType("text/plain");
 //        if(name.equalsIgnoreCase("das")) {
 //            resp.getWriter().println("Hello NPO " + name + " reqName = " + reqName);
 //            if(reqName.equalsIgnoreCase("getInfo"))

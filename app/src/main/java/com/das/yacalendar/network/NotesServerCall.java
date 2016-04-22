@@ -40,11 +40,13 @@ public class NotesServerCall extends BasicAPICall
         {
             try
             {
-                JSONObject obj = new JSONObject(result);
-                JSONArray days = obj.getJSONArray("days");
+                JSONArray days = new JSONArray(result);
+                //////JSONArray days = obj.getJSONArray("notes");
                 for (int iDay = 0; iDay < days.length(); iDay++)
                 {
-                    JSONObject day = days.getJSONObject(iDay);
+                    JSONObject obj = days.getJSONObject(iDay);
+                    JSONObject day = obj.getJSONObject("notes");
+
                     Date date = yacalendar.parseDate(day.getString("date"), Constants.LONG_DATE_FORMAT);
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(date);

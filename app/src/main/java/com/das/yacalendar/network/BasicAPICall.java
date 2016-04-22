@@ -22,6 +22,7 @@ public abstract class BasicAPICall extends AsyncTask<String, Void, Object>
 {
 
     protected yacalendar main = null;
+    protected String urlString = null;
 
     public BasicAPICall(final yacalendar main)
     {
@@ -45,7 +46,7 @@ public abstract class BasicAPICall extends AsyncTask<String, Void, Object>
     @Override
     protected Void doInBackground(String... params)
     {
-        String urlString = params[0]; // URL to call
+        urlString = params[0]; // URL to call
         String response = null;
 
         DefaultHttpClient httpClient = new DefaultHttpClient();

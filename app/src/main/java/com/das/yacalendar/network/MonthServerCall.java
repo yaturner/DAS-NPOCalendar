@@ -7,6 +7,9 @@ import android.util.Base64;
 
 import com.das.yacalendar.yacalendar;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 /**
  * Created by yaturner on 4/2/2015.
@@ -14,12 +17,11 @@ import com.das.yacalendar.yacalendar;
 public class MonthServerCall extends BasicAPICall {
     private final static String TAG = "MonthServerCall";
 
-    private int monthNumber = -1;
     private Bitmap bitmap = null;
+    private Pattern patten = Pattern.compile("^.+month(\\d+)\\.png$");
 
-    public MonthServerCall(final yacalendar main, final int monthNumber) {
+    public MonthServerCall(final yacalendar main) {
         super(main);
-        this.monthNumber = monthNumber;
     }
 
     @Override
@@ -35,7 +37,10 @@ public class MonthServerCall extends BasicAPICall {
         } else {
             bitmap = null;
         }
-        Message msg = main.msgHandler.obtainMessage(main.HANDLER_MESSAGE_MONTH_IMAGE, monthNumber, 0, bitmap);
+        Matcher m = patten.matcher(urlString);
+        m.find();
+        String monthNumber = m.group(1);
+        Message msg = main.msgHandler.obtainMessage(main.HANDLER_MESSAGE_MONTH_IMAGE, Integer.parseInt(monthNumber), 0, bitmap);
         main.msgHandler.sendMessage(msg);
     }
 }

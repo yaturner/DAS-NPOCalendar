@@ -22,5 +22,5 @@ public class Constants
     public static final int NOTE_PRIORITY_MEDIUM = 1;
     public static final int NOTE_PRIORITY_HIGH = 2;
 
-    public final static String SERVER_ADDRESS = "http://192.168.0.87:8081";
+    public final static String SERVER_ADDRESS = "http://celtic-current-96313.appspot.com";
 }

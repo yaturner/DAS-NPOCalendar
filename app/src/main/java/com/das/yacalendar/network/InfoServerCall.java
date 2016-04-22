@@ -41,18 +41,19 @@ public class InfoServerCall extends BasicAPICall
 
         if(result != null && result.length() > 0) {
             try {
-                JSONObject resultObject = new JSONObject(result);
-                JSONArray info = resultObject.getJSONArray("info");
-                JSONObject obj = info.optJSONObject(0);
-                String versionString = obj.getString("version");
+                JSONArray resultObject = new JSONArray(result);
+                JSONObject info = resultObject.getJSONObject(0);
+                JSONArray infoArray = info.getJSONArray("info");
+                JSONObject obj = infoArray.getJSONObject(0);
+                String versionString = (String) obj.get("version");
                 if (versionString != null && versionString.length() > 0) {
                     version = Integer.parseInt(versionString);
                 } else {
                     version = -1;
                 }
-                obj = info.optJSONObject(1);
+                obj = infoArray.optJSONObject(1);
                 startDate = obj.getString("start_date");
-                obj = info.optJSONObject(2);
+                obj = infoArray.optJSONObject(2);
                 endDate = obj.getString("end_date");
             } catch (JSONException e) {
                 e.printStackTrace();

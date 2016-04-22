@@ -182,7 +182,9 @@ public class GridCellAdapter extends BaseAdapter  {
         for (int i = 1; i <= daysInMonth; i++) {
             Log.d(currentMonthName, String.valueOf(i) + " "
                     + getMonthAsString(currentMonth) + " " + yy);
-            if (i == getCurrentDayOfMonth()) {
+            //TODO only do this if we are in the month being shown
+            Calendar now = Calendar.getInstance();
+            if (i == getCurrentDayOfMonth() && currentMonth == now.get(Calendar.MONTH)) {
                 list.add(String.valueOf(i) + "-ORANGE" + "-"
                         + getMonthAsString(currentMonth) + "-" + yy);
             } else {
@@ -199,7 +201,7 @@ public class GridCellAdapter extends BaseAdapter  {
     }
 
     /**
-     * NOTE: YOU NEED TO IMPLEMENT THIS PART Given the YEAR, MONTH, retrieve
+     * Given the YEAR, MONTH, retrieve
      * ALL entries from a SQLite database for that month. Iterate over the
      * List of All entries, and get the dateCreated, which is converted into
      * day.
@@ -240,22 +242,28 @@ public class GridCellAdapter extends BaseAdapter  {
 
 // Set the Day GridCell
         gridcell.setText(theday);
-        List<Note> notes = eventsPerMonthMap.get(position-1); //zero based
-        gridcell.setTag(notes);
-        Log.d(TAG, "Setting GridCell " + theday + "-" + themonth + "-"
-                + theyear);
+
 
         if (day_color[1].equals("GREY")) {
             gridcell.setTextColor(context.getResources()
                     .getColor(android.R.color.darker_gray));
+            gridcell.setTag(null);
         }
-        if (day_color[1].equals("BLACK")) {
+        else if (day_color[1].equals("BLACK")) {
             gridcell.setTextColor(context.getResources().getColor(
                     android.R.color.black));
+            List<Note> notes = eventsPerMonthMap.get(Integer.parseInt(theday));
+            gridcell.setTag(notes);
+            Log.d(TAG, "Setting GridCell " + theday + "-" + themonth + "-"
+                    + theyear);
         }
-        if (day_color[1].equals("ORANGE")) {
+        else if (day_color[1].equals("ORANGE")) {
             gridcell.setTextColor(context.getResources().getColor(android.R.color.holo_orange_light));
             gridcell.setTypeface(null, Typeface.BOLD);
+            List<Note> notes = eventsPerMonthMap.get(Integer.parseInt(theday));
+            gridcell.setTag(notes);
+            Log.d(TAG, "Setting GridCell " + theday + "-" + themonth + "-"
+                    + theyear);
         }
         return row;
     }
