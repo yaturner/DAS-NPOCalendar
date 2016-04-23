@@ -228,21 +228,21 @@ public class GridCellAdapter extends BaseAdapter  {
             row = inflater.inflate(R.layout.day, parent, false);
         }
 
-// Get a reference to the Day gridcell
+        // Get a reference to the Day gridcell
         gridcell = (DateButton) row.findViewById(R.id.BtnDay);
 
-// ACCOUNT FOR SPACING
+        // ACCOUNT FOR SPACING
 
         Log.d(TAG, "Current Day: " + getCurrentDayOfMonth());
         String[] day_color = list.get(position).split("-");
         String theday = day_color[0];
         String themonth = day_color[2];
         String theyear = day_color[3];
-// Set the item attributes
 
-// Set the Day GridCell
+        // Set the Day GridCell
         gridcell.setText(theday);
 
+        // Set the item attributes
 
         if (day_color[1].equals("GREY")) {
             gridcell.setTextColor(context.getResources()
