@@ -8,20 +8,7 @@
         <item>@id/day05</item>
         <item>@id/day06</item>
     </integer-array>
-    <integer-array name="MonthBackgroundIds">
-        <item>@drawable/month1</item>
-        <item>@drawable/month2</item>
-        <item>@drawable/month3</item>
-        <item>@drawable/month4</item>
-        <item>@drawable/month5</item>
-        <item>@drawable/month6</item>
-        <item>@drawable/month7</item>
-        <item>@drawable/month8</item>
-        <item>@drawable/month9</item>
-        <item>@drawable/month10</item>
-        <item>@drawable/month11</item>
-        <item>@drawable/month12</item>
-    </integer-array>
+
     <!--  Date Highlight Method data for Preferences -->
     <string-array name="highlight_method">
         <item>Highlight with Color</item>

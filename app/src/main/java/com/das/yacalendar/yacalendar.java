@@ -43,6 +43,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.NotificationCompatSideChannelService;
 import android.support.v4.util.Pair;
 import android.text.Editable;
 import android.text.Selection;
@@ -96,6 +97,7 @@ import com.das.yacalendar.notes.Note;
 
 import com.das.yacalendar.network.ServletPostAsyncTask;
 
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -115,7 +117,6 @@ public class yacalendar extends FragmentActivity
     private static yacalendar singleton;
 
     final static public boolean SUPPORT_NOTE_PRIORITY = false;
-    final static public int kNumDaysOfWeek = Calendar.getInstance().getMaximum(Calendar.DAY_OF_WEEK);
 
     final static private String TAG = yacalendar.class.getSimpleName();
 
@@ -134,6 +135,9 @@ public class yacalendar extends FragmentActivity
     //total number of strings for the day view, if the note has less than this number
     // then the view is padded with empty strings
     private static final int NUMBER_OF_NOTE_STRINGS = 6;
+
+    public static String MONTH_IMAGES_DIR;
+    public static String DAY_IMAGES_DIR;
 
     public Animation mSlideLeftIn = null;
     public Animation mSlideLeftOut = null;
@@ -204,7 +208,6 @@ public class yacalendar extends FragmentActivity
     private boolean isMainFlipImage = true;
     private CalendarInfo calendarInfo = null;
     private ProgressDialog progressDialog = null;
-    private TypedArray monthBackground;
     public Handler msgHandler = null;
 
     public final static int HANDLER_MESSAGE_INFO = 101;
@@ -238,6 +241,27 @@ public class yacalendar extends FragmentActivity
         super.onCreate(savedInstanceState);
         singleton = this;
 
+        MONTH_IMAGES_DIR = getFilesDir()+"/MonthImages/";
+        DAY_IMAGES_DIR = getFilesDir()+"/DayImages/";
+
+        //Create the image directories if needed
+        File dir = new File(MONTH_IMAGES_DIR);
+        if(!dir.exists())
+        {
+            if(!dir.mkdirs())
+            {
+                throw new RuntimeException("Internal Error - could not create images directory");
+            }
+        }
+        dir = new File(DAY_IMAGES_DIR);
+        if(!dir.exists())
+        {
+            if(!dir.mkdirs())
+            {
+                throw new RuntimeException("Internal Error - could not create images directory");
+            }
+        }
+        dir = null;
         // window features - must be set prior to calling setContentView...
         //////////requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.main);
@@ -247,10 +271,6 @@ public class yacalendar extends FragmentActivity
         mMonthView1 = (RelativeLayout) findViewById(R.id.MonthView1);
         mMonthView2 = (RelativeLayout) findViewById(R.id.MonthView2);
         mDayViewScreen = (RelativeLayout) findViewById(R.id.day_view_screen);
-
-        ///////////////////DEBUGGING ONLY///////////////
-        ////new ServletPostAsyncTask().execute(new Pair<Context, String>(this, "das"));
-        ///////////////////DEBUGGING ONLY///////////////
 
         mMainScreen.setVisibility(View.INVISIBLE);
 
@@ -330,25 +350,15 @@ public class yacalendar extends FragmentActivity
                         break;
                     case HANDLER_MESSAGE_SPLASH_IMAGE:
                         blob = (byte[])msg.obj;
-                        bitmap = BitmapFactory.decodeByteArray(blob, 0, blob.length);
-                        splashImage = new BitmapDrawable(getResources(), bitmap);
-                        calendarInfo.setSplashImage(bitmap);
-
-                        View splash = (View)findViewById( R.id.splash_screen );
-                        splash.setVisibility(View.VISIBLE);
-                        splash.setBackground(splashImage);
-                        splash.bringToFront();
-                        splash.invalidate();
-                        //InitializeGUI();
-                        //hideProgressDialog();
+                        createAndSaveBitmap(MONTH_IMAGES_DIR + "/splash.png", blob);
                         urlString = Constants.SERVER_ADDRESS + "/getMonthImages?npo=das";
                         MonthImagesServerCall taskMonthImageNames = new MonthImagesServerCall(singleton);
                         taskMonthImageNames.execute(urlString);
                         break;
                     case HANDLER_MESSAGE_MONTH_IMAGE:
                         int monthNo = msg.arg1;
-                        bitmap = (Bitmap)msg.obj;
-                        calendarInfo.addMonthImage(monthNo, bitmap);
+                        blob = (byte[])msg.obj;
+                        createAndSaveBitmap(MONTH_IMAGES_DIR + "/month" + monthNo + ".png", blob);
                         break;
                     case HANDLER_MESSAGE_MONTH_IMAGE_NAMES:
                         monthImageNames = (ArrayList<String>)msg.obj;
@@ -449,8 +459,6 @@ public class yacalendar extends FragmentActivity
         mCalendar = Calendar.getInstance();
         mCurrentMonthIndex = mCalendar.get(Calendar.MONTH) + 1;
         mCurrentYear = mCalendar.get(Calendar.YEAR);
-
-        monthBackground = getResources().obtainTypedArray(R.array.MonthBackgroundIds);
 
 //        if(currentCalendarVersion == 1)
 //        {
@@ -1504,6 +1512,35 @@ public class yacalendar extends FragmentActivity
     /*******************************************************************************/
 
     /**
+     *
+     * @param path - where to save the png
+     * @param blob - png
+     * @return the bitmap
+     *
+     */
+    private Bitmap createAndSaveBitmap(final String path, final byte[] blob)
+    {
+        if(blob != null && blob.length > 0) {
+            try {
+                File out = new File(path);
+                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(out));
+                bos.write(blob);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e.getLocalizedMessage());
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e.getLocalizedMessage());
+            }
+        }
+        else
+        {
+            throw new RuntimeException("Internal Error - could not save image " + path);
+        }
+        return BitmapFactory.decodeByteArray(blob, 0, blob.length);
+    }
+
+    /**
      * composeNewNote
      */
     public void composeNewNote(final Calendar date) {
@@ -1936,10 +1973,7 @@ public class yacalendar extends FragmentActivity
         //monthName.setText(getString(mMonthNameStringId[mCurrentMonthIndex]) + " " + mCurrentYear);
         monthName.setText(new SimpleDateFormat("MMM - yyyy").format(mCalendar.getTime()));
         //Set the calendar background picture, if it available from the server
-        ////Bitmap bitmap = calendarInfo.getMonthImage(mCalendar.get(Calendar.MONTH));
-
-        int resId = monthBackground.getResourceId(mCalendar.get(Calendar.MONTH), 0);
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), resId);
+        Bitmap bitmap = BitmapFactory.decodeFile(MONTH_IMAGES_DIR+"/month"+(mCalendar.get(Calendar.MONTH)+1)+".png");
         if(bitmap != null)
         {
             BitmapDrawable d = new BitmapDrawable(getResources(), bitmap);

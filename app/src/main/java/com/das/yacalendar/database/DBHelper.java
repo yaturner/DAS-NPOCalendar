@@ -15,8 +15,6 @@ import com.das.yacalendar.notes.Note;
 import com.das.yacalendar.yacalendar;
 import com.google.common.collect.ArrayListMultimap;
 
-import java.sql.SQLDataException;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -34,7 +32,6 @@ public class DBHelper extends SQLiteOpenHelper
     private final static String[] DELETE_STATEMENTS =
             {
                     "DROP TABLE IF EXISTS " + CalendarContract.NOTE_TABLE_NAME,
-                    "DROP TABLE IF EXISTS " + CalendarContract.IMAGES_TABLE_NAME,
                     "DROP TABLE IF EXISTS " + CalendarContract.INFO_TABLE_NAME
             };
 
@@ -52,22 +49,6 @@ public class DBHelper extends SQLiteOpenHelper
     {
         try
         {
-//            database.execSQL(
-//                    "CREATE TABLE IF NOT EXISTS " + CalendarContract.LOCAL_TABLE_NAME + "(" +
-//                            CalendarContract.CalendarEntry._ID + " integer primary key autoincrement," +
-//                            CalendarContract.CalendarEntry.COLUMN_NAME_PRIORITY + " INTEGER" +
-//                            CalendarContract.CalendarEntry.COLUMN_NAME_NOTE + " TEXT," +
-//                            CalendarContract.CalendarEntry.COLUMN_NAME_DATE + "TEXT" +
-//                            ");");
-
-//            database.execSQL(
-//                    "CREATE TABLE IF NOT EXISTS " + CalendarContract.REMOTE_TABLE_NAME + "(" +
-//                            CalendarContract.CalendarEntry._ID + " integer primary key autoincrement," +
-//                            CalendarContract.CalendarEntry.COLUMN_NAME_PRIORITY + " INTEGER" +
-//                            CalendarContract.CalendarEntry.COLUMN_NAME_NOTE + " TEXT," +
-//                            CalendarContract.CalendarEntry.COLUMN_NAME_DATE + "TEXT" +
-//                            ");");
-
             database.execSQL(
                     "CREATE TABLE IF NOT EXISTS " + CalendarContract.INFO_TABLE_NAME + "(" +
                             CalendarContract.CalendarInfoEntry._ID + " integer primary key autoincrement, " +
@@ -76,11 +57,7 @@ public class DBHelper extends SQLiteOpenHelper
                             CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_START_DATE + " TEXT, " +
                             CalendarContract.CalendarInfoEntry.COLUMN_NAME_INFO_END_DATE + " TEXT " +
                             ");");
-            database.execSQL(
-                    "CREATE TABLE IF NOT EXISTS "+ CalendarContract.IMAGES_TABLE_NAME + "(" +
-                            CalendarContract.CalendarImagesEntry.COLUMN_NAME_IMAGE_ID + " INTEGER, " +
-                            CalendarContract.CalendarImagesEntry.COLUMN_NAME_IMAGE + " BLOB " +
-                            ");");
+
             database.execSQL(
                     "CREATE TABLE IF NOT EXISTS "+ CalendarContract.NOTE_TABLE_NAME + "(" +
                             CalendarContract.CalendarNoteEntry.COLUMN_NAME_NOTE_ID + " INTEGER primary key autoincrement, " +

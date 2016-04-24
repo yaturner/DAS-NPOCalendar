@@ -8,5 +8,5 @@ package com.das.yacalendar.database;
  */
 public class DatabaseVersion
 {
-    public final static String version = "0.90";
+    public final static String version = "1";
 }

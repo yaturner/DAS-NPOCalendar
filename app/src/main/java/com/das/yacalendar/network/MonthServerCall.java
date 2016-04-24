@@ -17,8 +17,9 @@ import java.util.regex.Pattern;
 public class MonthServerCall extends BasicAPICall {
     private final static String TAG = "MonthServerCall";
 
-    private Bitmap bitmap = null;
+    private  byte[] decodedString = null;
     private Pattern patten = Pattern.compile("^.+month(\\d+)\\.png$");
+    private String monthNumber = null;
 
     public MonthServerCall(final yacalendar main) {
         super(main);
@@ -32,15 +33,17 @@ public class MonthServerCall extends BasicAPICall {
     @Override
     protected void parseResult(final String result) {
         if (result != null && result.length() > 0) {
-            byte[] decodedString = Base64.decode(result, Base64.DEFAULT);
-            bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-        } else {
-            bitmap = null;
+            decodedString = Base64.decode(result, Base64.DEFAULT);
+            Matcher m = patten.matcher(urlString);
+            m.find();
+            monthNumber = m.group(1);
         }
-        Matcher m = patten.matcher(urlString);
-        m.find();
-        String monthNumber = m.group(1);
-        Message msg = main.msgHandler.obtainMessage(main.HANDLER_MESSAGE_MONTH_IMAGE, Integer.parseInt(monthNumber), 0, bitmap);
+        else
+        {
+            monthNumber = null;
+            decodedString = null;
+        }
+        Message msg = main.msgHandler.obtainMessage(main.HANDLER_MESSAGE_MONTH_IMAGE, Integer.parseInt(monthNumber), 0, decodedString);
         main.msgHandler.sendMessage(msg);
     }
 }
