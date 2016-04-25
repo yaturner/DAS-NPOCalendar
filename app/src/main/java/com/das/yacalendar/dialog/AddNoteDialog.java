@@ -13,6 +13,7 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.das.yacalendar.Constants;
 import com.das.yacalendar.R;
 import com.das.yacalendar.notes.Note;
 import com.das.yacalendar.yacalendar;
@@ -115,7 +116,7 @@ public class AddNoteDialog extends DialogFragment implements TimePickerDialog.On
                 }
                 Note note = new Note(date, priority, text, true);
                 yacalendar main = yacalendar.getInstance();
-                Message msg = main.getMsgHandler().obtainMessage(yacalendar.HANDLER_MESSAGE_NEW_NOTE, note);
+                Message msg = main.getMsgHandler().obtainMessage(Constants.HANDLER_MESSAGE_NEW_NOTE, note);
                 main.getMsgHandler().sendMessage(msg);
                 getDialog().dismiss();
             }

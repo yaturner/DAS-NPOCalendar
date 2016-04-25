@@ -2,6 +2,7 @@ package com.das.yacalendar.network;
 
 import android.os.Message;
 
+import com.das.yacalendar.Constants;
 import com.das.yacalendar.calendar.CalendarInfo;
 import com.das.yacalendar.yacalendar;
 
@@ -14,10 +15,10 @@ import java.util.ArrayList;
 /**
  * Created by yaturner on 3/30/2015.
  */
-public class MonthImagesServerCall extends BasicAPICall {
-    private ArrayList<String> imageNames = new ArrayList<String>();
+public class ImageNamesServerCall extends BasicAPICall {
+    private ArrayList<ImageInfo> imageNames = new ArrayList<ImageInfo>();
 
-    public MonthImagesServerCall(final yacalendar main) {
+    public ImageNamesServerCall(final yacalendar main) {
         super(main);
     }
 
@@ -41,15 +42,21 @@ public class MonthImagesServerCall extends BasicAPICall {
                 for (int index = 0; index < filenames.length(); index++) {
                     String[] values = filenames.getString(index).split(",");
                     String name = values[0].substring(values[0].lastIndexOf("/") + 1);
-                    if (!name.equalsIgnoreCase("splash.png")) {
-                        imageNames.add(name);
+                    if (!name.equalsIgnoreCase("splash.png") && !name.isEmpty()) {
+                        ImageInfo imageInfo = new ImageInfo();
+                        imageInfo.decoded = null;
+                        imageInfo.name = name.trim();
+                        imageInfo.path = values[0].split(":")[1].trim();
+                        String str = values[1].split(":")[1];
+                        imageInfo.size = Integer.parseInt(str.trim());
+                        imageNames.add(imageInfo);
                     }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
-        Message msg = main.msgHandler.obtainMessage(main.HANDLER_MESSAGE_MONTH_IMAGE_NAMES);
+        Message msg = main.msgHandler.obtainMessage(Constants.HANDLER_MESSAGE_IMAGE_NAMES);
         msg.obj = (Object) imageNames;
         main.msgHandler.sendMessage(msg);
 

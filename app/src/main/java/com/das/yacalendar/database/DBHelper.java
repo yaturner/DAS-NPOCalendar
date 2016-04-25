@@ -95,7 +95,7 @@ public class DBHelper extends SQLiteOpenHelper
     public void clearDatabase(final String which_table)
     {
         SQLiteDatabase db = openDatabase();
-        int index = which_table.equals(Constants.LOCAL_TABLE) ? 0 : 1;
+        int index = 0;
 
         database.execSQL(DELETE_STATEMENTS[index]);
     }

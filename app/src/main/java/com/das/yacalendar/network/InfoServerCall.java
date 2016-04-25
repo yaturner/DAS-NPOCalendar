@@ -2,6 +2,7 @@ package com.das.yacalendar.network;
 
 import android.os.Message;
 
+import com.das.yacalendar.Constants;
 import com.das.yacalendar.calendar.CalendarInfo;
 import com.das.yacalendar.yacalendar;
 
@@ -65,7 +66,7 @@ public class InfoServerCall extends BasicAPICall
                 calendarInfo = new CalendarInfo(version, startDate, endDate);
             }
         }
-        Message msg = main.msgHandler.obtainMessage(main.HANDLER_MESSAGE_INFO);
+        Message msg = main.msgHandler.obtainMessage(Constants.HANDLER_MESSAGE_INFO);
         msg.obj = (Object) calendarInfo;
         main.msgHandler.sendMessage(msg);
 

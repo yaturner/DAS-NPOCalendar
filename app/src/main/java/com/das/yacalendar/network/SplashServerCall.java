@@ -3,6 +3,7 @@ package com.das.yacalendar.network;
 import android.os.Message;
 import android.util.Base64;
 
+import com.das.yacalendar.Constants;
 import com.das.yacalendar.yacalendar;
 
 import org.json.JSONArray;
@@ -33,7 +34,7 @@ public class SplashServerCall extends BasicAPICall {
         if (result != null && result.length() > 0) {
                 blob = result.getBytes();
                 byte[] decoded = Base64.decode(blob, flags);
-                Message msg = main.msgHandler.obtainMessage(yacalendar.HANDLER_MESSAGE_SPLASH_IMAGE,
+                Message msg = main.msgHandler.obtainMessage(Constants.HANDLER_MESSAGE_SPLASH_IMAGE,
                         0, 0, decoded);
                 main.msgHandler.sendMessage(msg);
             }

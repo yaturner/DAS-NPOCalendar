@@ -13,8 +13,10 @@ import com.das.yacalendar.DateButton;
 import com.das.yacalendar.R;
 import com.das.yacalendar.database.DBHelper;
 import com.das.yacalendar.notes.Note;
+import com.das.yacalendar.yacalendar;
 import com.google.common.collect.ArrayListMultimap;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -256,6 +258,12 @@ public class GridCellAdapter extends BaseAdapter  {
             gridcell.setTag(notes);
             Log.d(TAG, "Setting GridCell " + theday + "-" + themonth + "-"
                     + theyear);
+            //check for a day image
+            File day = new File(yacalendar.IMAGES_DIR+"/day04232016.jpg");
+            if(day.exists())
+            {
+
+            }
         }
         else if (day_color[1].equals("ORANGE")) {
             gridcell.setTextColor(context.getResources().getColor(android.R.color.holo_orange_light));
