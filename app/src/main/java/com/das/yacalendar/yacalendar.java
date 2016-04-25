@@ -338,7 +338,7 @@ public class yacalendar extends FragmentActivity
                         break;
                     case Constants.HANDLER_MESSAGE_IMAGE:
                         imageInfo = (ImageInfo)msg.obj;
-                        createAndSaveBitmap(IMAGES_DIR + "/month/" + imageInfo.name, imageInfo.decoded);
+                        createAndSaveBitmap(IMAGES_DIR + imageInfo.name, imageInfo.decoded);
                         break;
                     case Constants.HANDLER_MESSAGE_IMAGE_NAMES:
                         ArrayList<ImageInfo> imageNames = (ArrayList<ImageInfo>)msg.obj;
